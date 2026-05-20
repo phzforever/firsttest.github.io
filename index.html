@@ -1,0 +1,970 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>从 0 开始安装 Codex</title>
+    <style>
+      :root {
+        --ink: #15130e;
+        --muted: #676054;
+        --paper: #fffaf0;
+        --panel: #ffffff;
+        --line: #ded4c0;
+        --green: #0f6b4b;
+        --mint: #d8f6df;
+        --gold: #ffb84d;
+        --red: #d24c35;
+        --blue: #2257a4;
+        --shadow: 0 18px 40px rgba(40, 31, 15, 0.13);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background:
+          linear-gradient(90deg, rgba(21, 19, 14, 0.035) 1px, transparent 1px),
+          linear-gradient(rgba(21, 19, 14, 0.035) 1px, transparent 1px),
+          var(--paper);
+        background-size: 22px 22px;
+        font-family: "Avenir Next", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      button {
+        font: inherit;
+      }
+
+      .page {
+        width: min(100%, 920px);
+        margin: 0 auto;
+        overflow: hidden;
+        background: rgba(255, 250, 240, 0.72);
+      }
+
+      .hero {
+        min-height: 92vh;
+        padding: 22px 18px 34px;
+        display: grid;
+        align-content: space-between;
+        position: relative;
+      }
+
+      .hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(circle at 18% 24%, rgba(255, 184, 77, 0.42), transparent 24%),
+          radial-gradient(circle at 88% 18%, rgba(15, 107, 75, 0.22), transparent 26%),
+          linear-gradient(135deg, transparent 0 58%, rgba(34, 87, 164, 0.08) 58% 68%, transparent 68%);
+        pointer-events: none;
+      }
+
+      .topbar,
+      .hero-main,
+      .hero-foot {
+        position: relative;
+        z-index: 1;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+        letter-spacing: 0;
+      }
+
+      .brand-mark {
+        width: 34px;
+        height: 34px;
+        border: 2px solid var(--ink);
+        background: var(--mint);
+        display: grid;
+        place-items: center;
+        box-shadow: 4px 4px 0 var(--ink);
+      }
+
+      .brand-mark svg {
+        width: 19px;
+        height: 19px;
+      }
+
+      .pill {
+        border: 1px solid var(--ink);
+        background: var(--panel);
+        padding: 8px 10px;
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+        box-shadow: 3px 3px 0 var(--ink);
+      }
+
+      .hero-main {
+        padding-top: 56px;
+      }
+
+      .eyebrow {
+        width: max-content;
+        max-width: 100%;
+        padding: 8px 10px;
+        border: 1px solid var(--ink);
+        background: var(--gold);
+        font-size: 13px;
+        font-weight: 800;
+        transform: rotate(-1.5deg);
+        box-shadow: 4px 4px 0 var(--ink);
+      }
+
+      h1 {
+        margin: 22px 0 16px;
+        max-width: 780px;
+        font-family: Georgia, "Songti SC", serif;
+        font-size: clamp(44px, 13vw, 96px);
+        line-height: 0.96;
+        letter-spacing: 0;
+      }
+
+      .hero-copy {
+        max-width: 650px;
+        margin: 0;
+        font-size: 18px;
+        line-height: 1.72;
+        color: #332f28;
+        font-weight: 650;
+      }
+
+      .hero-visual {
+        margin-top: 30px;
+        border: 2px solid var(--ink);
+        background: var(--panel);
+        box-shadow: 8px 8px 0 var(--ink);
+        transform: rotate(1deg);
+      }
+
+      .terminal-head {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 12px;
+        border-bottom: 2px solid var(--ink);
+        background: #f0e4ce;
+      }
+
+      .dot {
+        width: 12px;
+        height: 12px;
+        border: 1px solid var(--ink);
+        border-radius: 999px;
+      }
+
+      .dot:nth-child(1) {
+        background: var(--red);
+      }
+
+      .dot:nth-child(2) {
+        background: var(--gold);
+      }
+
+      .dot:nth-child(3) {
+        background: var(--green);
+      }
+
+      .terminal-body {
+        padding: 18px;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 14px;
+        line-height: 1.8;
+        color: #10251c;
+      }
+
+      .prompt {
+        color: var(--green);
+        font-weight: 800;
+      }
+
+      .typed {
+        display: inline-block;
+        border-right: 2px solid var(--green);
+        animation: blink 0.8s steps(1) infinite;
+      }
+
+      .hero-foot {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 30px;
+      }
+
+      .stat {
+        border: 1px solid var(--ink);
+        background: rgba(255, 255, 255, 0.76);
+        padding: 14px;
+      }
+
+      .stat strong {
+        display: block;
+        font-size: 22px;
+        margin-bottom: 4px;
+      }
+
+      .stat span {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      section {
+        padding: 28px 18px;
+      }
+
+      .section-title {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 18px;
+      }
+
+      h2 {
+        margin: 0;
+        font-family: Georgia, "Songti SC", serif;
+        font-size: clamp(28px, 8vw, 48px);
+        line-height: 1.05;
+        letter-spacing: 0;
+      }
+
+      .section-index {
+        flex: 0 0 auto;
+        min-width: 48px;
+        height: 48px;
+        border: 2px solid var(--ink);
+        display: grid;
+        place-items: center;
+        background: var(--mint);
+        box-shadow: 4px 4px 0 var(--ink);
+        font-weight: 900;
+      }
+
+      .lead {
+        margin: 0 0 18px;
+        color: var(--muted);
+        line-height: 1.75;
+        font-size: 16px;
+      }
+
+      .checker {
+        display: grid;
+        gap: 10px;
+      }
+
+      .check-item {
+        display: grid;
+        grid-template-columns: 34px 1fr;
+        gap: 12px;
+        align-items: start;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.72);
+        padding: 14px;
+      }
+
+      .check-icon {
+        width: 28px;
+        height: 28px;
+        border: 2px solid var(--ink);
+        background: var(--gold);
+        display: grid;
+        place-items: center;
+        font-weight: 900;
+        line-height: 1;
+      }
+
+      .check-item b {
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .check-item p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.6;
+        font-size: 14px;
+      }
+
+      .callout {
+        border: 2px solid var(--ink);
+        background: #fff;
+        padding: 18px;
+        box-shadow: var(--shadow);
+      }
+
+      .callout.network {
+        background: linear-gradient(135deg, #fff 0 64%, #d8f6df 64%);
+      }
+
+      .callout b {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 18px;
+      }
+
+      .callout p {
+        margin: 0;
+        color: #3b362e;
+        line-height: 1.72;
+      }
+
+      .steps {
+        display: grid;
+        gap: 16px;
+      }
+
+      .step {
+        border: 2px solid var(--ink);
+        background: var(--panel);
+        box-shadow: 6px 6px 0 rgba(21, 19, 14, 0.94);
+        padding: 18px;
+      }
+
+      .step-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 12px;
+      }
+
+      .step-num {
+        display: inline-grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        background: var(--ink);
+        color: #fff;
+        font-weight: 900;
+      }
+
+      h3 {
+        margin: 0;
+        font-size: 20px;
+        line-height: 1.25;
+      }
+
+      .step p {
+        margin: 0 0 12px;
+        color: var(--muted);
+        line-height: 1.72;
+      }
+
+      .codebox {
+        position: relative;
+        border: 1px solid var(--ink);
+        background: #15130e;
+        color: #f9f1df;
+        padding: 15px 46px 15px 14px;
+        overflow-x: auto;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      .copy-btn {
+        position: absolute;
+        right: 8px;
+        top: 8px;
+        width: 30px;
+        height: 30px;
+        border: 1px solid #f9f1df;
+        color: #f9f1df;
+        background: transparent;
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+      }
+
+      .copy-btn svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      .grid-two {
+        display: grid;
+        gap: 14px;
+      }
+
+      .mode-card {
+        border: 1px solid var(--ink);
+        background: rgba(255, 255, 255, 0.82);
+        padding: 16px;
+      }
+
+      .mode-card:nth-child(2) {
+        background: #fff4d8;
+      }
+
+      .mode-card:nth-child(3) {
+        background: #e9f2ff;
+      }
+
+      .mode-card b {
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .mode-card span {
+        color: var(--muted);
+        line-height: 1.6;
+        font-size: 14px;
+      }
+
+      .prompt-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .prompt-card {
+        border-left: 6px solid var(--green);
+        background: var(--panel);
+        padding: 14px 14px 14px 16px;
+        box-shadow: 0 8px 22px rgba(40, 31, 15, 0.08);
+        font-weight: 700;
+        line-height: 1.58;
+      }
+
+      .faq {
+        display: grid;
+        gap: 12px;
+      }
+
+      details {
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.78);
+        padding: 0 14px;
+      }
+
+      summary {
+        cursor: pointer;
+        padding: 16px 0;
+        font-weight: 800;
+      }
+
+      details p {
+        margin: 0 0 16px;
+        color: var(--muted);
+        line-height: 1.68;
+      }
+
+      .upgrade {
+        background: var(--ink);
+        color: #fff8e9;
+      }
+
+      .upgrade .section-index {
+        background: var(--gold);
+        color: var(--ink);
+      }
+
+      .upgrade .lead {
+        color: #d8cdb9;
+      }
+
+      .upgrade-panel {
+        border: 1px solid #fff8e9;
+        padding: 18px;
+        background:
+          linear-gradient(135deg, rgba(255, 184, 77, 0.18), transparent 46%),
+          rgba(255, 255, 255, 0.05);
+      }
+
+      .upgrade-panel p {
+        margin: 0 0 14px;
+        color: #eee1cb;
+        line-height: 1.72;
+      }
+
+      .plan-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin: 16px 0;
+      }
+
+      .plan {
+        border: 1px solid #fff8e9;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .plan strong {
+        display: block;
+        color: #fff;
+        font-size: 20px;
+        margin-bottom: 6px;
+      }
+
+      .plan span {
+        color: #d8cdb9;
+        line-height: 1.62;
+        font-size: 14px;
+      }
+
+      .cta {
+        padding: 34px 18px 46px;
+        text-align: center;
+      }
+
+      .cta-box {
+        border: 2px solid var(--ink);
+        background: var(--gold);
+        box-shadow: 8px 8px 0 var(--ink);
+        padding: 24px 18px;
+      }
+
+      .cta-box h2 {
+        font-size: clamp(30px, 9vw, 54px);
+      }
+
+      .cta-box p {
+        margin: 14px auto 18px;
+        max-width: 560px;
+        line-height: 1.7;
+        color: #332f28;
+        font-weight: 700;
+      }
+
+      .start-command {
+        display: inline-block;
+        border: 2px solid var(--ink);
+        background: #fff;
+        padding: 12px 14px;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 13px;
+        max-width: 100%;
+        overflow-wrap: anywhere;
+      }
+
+      .toast {
+        position: fixed;
+        left: 50%;
+        bottom: 20px;
+        transform: translateX(-50%) translateY(20px);
+        border: 1px solid var(--ink);
+        background: var(--ink);
+        color: #fff;
+        padding: 10px 14px;
+        opacity: 0;
+        pointer-events: none;
+        transition: 0.22s ease;
+        z-index: 10;
+        font-size: 14px;
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+
+      @keyframes blink {
+        50% {
+          border-color: transparent;
+        }
+      }
+
+      @media (min-width: 720px) {
+        .hero {
+          padding: 34px 42px 42px;
+        }
+
+        section,
+        .cta {
+          padding-left: 42px;
+          padding-right: 42px;
+        }
+
+        .hero-main {
+          padding-top: 68px;
+        }
+
+        .hero-visual {
+          width: min(650px, 86%);
+        }
+
+        .hero-foot,
+        .grid-two,
+        .plan-row {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .checker {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .plan-row {
+          align-items: stretch;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header class="hero">
+        <nav class="topbar" aria-label="页面导航">
+          <div class="brand">
+            <span class="brand-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M7 8 3 12l4 4M17 8l4 4-4 4M14 5l-4 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </span>
+            Codex 小白课
+          </div>
+          <a class="pill" href="#steps">马上开始</a>
+        </nav>
+
+        <div class="hero-main">
+          <div class="eyebrow">保姆级安装教程</div>
+          <h1>从 0 开始安装 Codex</h1>
+          <p class="hero-copy">让 AI 进入你的项目文件夹，帮你读代码、改页面、修 bug、跑命令。不会命令行也没关系，复制粘贴跟着做。</p>
+
+          <div class="hero-visual" aria-label="Codex 终端示意图">
+            <div class="terminal-head">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+            <div class="terminal-body">
+              <span class="prompt">$</span> npm install -g @openai/codex<br />
+              <span class="prompt">$</span> codex --login<br />
+              <span class="prompt">$</span> <span class="typed">请帮我创建一个 H5 页面</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-foot">
+          <div class="stat">
+            <strong>10 步</strong>
+            <span>按顺序操作，先跑通再深入</span>
+          </div>
+          <div class="stat">
+            <strong>纯小白</strong>
+            <span>每一步都配好命令和解释</span>
+          </div>
+        </div>
+      </header>
+
+      <section>
+        <div class="section-title">
+          <h2>先确认准备项</h2>
+          <div class="section-index">01</div>
+        </div>
+        <p class="lead">安装 Codex 前，不需要你已经会写代码，但电脑环境要先满足几个基础条件。</p>
+        <div class="checker">
+          <div class="check-item">
+            <div class="check-icon">✓</div>
+            <div>
+              <b>一台电脑</b>
+              <p>推荐 macOS 或 Linux。Windows 用户建议使用 WSL。</p>
+            </div>
+          </div>
+          <div class="check-item">
+            <div class="check-icon">✓</div>
+            <div>
+              <b>Node.js 和 npm</b>
+              <p>Codex CLI 需要通过 npm 安装，后面会教你检查。</p>
+            </div>
+          </div>
+          <div class="check-item">
+            <div class="check-icon">✓</div>
+            <div>
+              <b>稳定网络</b>
+              <p>需要能正常访问 ChatGPT / OpenAI 相关服务。</p>
+            </div>
+          </div>
+          <div class="check-item">
+            <div class="check-icon">✓</div>
+            <div>
+              <b>一个项目文件夹</b>
+              <p>可以是真项目，也可以先新建一个空文件夹练手。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="callout network">
+          <b>网络打不开怎么办？</b>
+          <p>如果你还不知道如何科学上网，或者访问 ChatGPT 时经常打不开、加载失败、登录不了，可以私信我，我单独发你一份小白可操作的解决方案。</p>
+        </div>
+      </section>
+
+      <section id="steps">
+        <div class="section-title">
+          <h2>正式安装 Codex</h2>
+          <div class="section-index">02</div>
+        </div>
+        <div class="steps">
+          <article class="step">
+            <div class="step-head">
+              <h3>打开终端</h3>
+              <span class="step-num">1</span>
+            </div>
+            <p>macOS 用户按下 Command + 空格，搜索“终端”或 Terminal，然后回车打开。</p>
+          </article>
+
+          <article class="step">
+            <div class="step-head">
+              <h3>检查 npm</h3>
+              <span class="step-num">2</span>
+            </div>
+            <p>输入下面的命令。如果出现版本号，说明 npm 已经装好。</p>
+            <div class="codebox">
+              <code>npm -v</code>
+              <button class="copy-btn" data-copy="npm -v" aria-label="复制 npm 检查命令">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <rect x="9" y="9" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="2" />
+                  <path d="M6 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                </svg>
+              </button>
+            </div>
+          </article>
+
+          <article class="step">
+            <div class="step-head">
+              <h3>安装 Codex</h3>
+              <span class="step-num">3</span>
+            </div>
+            <p>复制下面的命令到终端，等待安装完成。</p>
+            <div class="codebox">
+              <code>npm install -g @openai/codex</code>
+              <button class="copy-btn" data-copy="npm install -g @openai/codex" aria-label="复制安装命令">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <rect x="9" y="9" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="2" />
+                  <path d="M6 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                </svg>
+              </button>
+            </div>
+          </article>
+
+          <article class="step">
+            <div class="step-head">
+              <h3>确认安装成功</h3>
+              <span class="step-num">4</span>
+            </div>
+            <p>如果能看到版本号，说明 Codex 已经安装成功。</p>
+            <div class="codebox">
+              <code>codex --version</code>
+              <button class="copy-btn" data-copy="codex --version" aria-label="复制版本检查命令">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <rect x="9" y="9" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="2" />
+                  <path d="M6 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                </svg>
+              </button>
+            </div>
+          </article>
+
+          <article class="step">
+            <div class="step-head">
+              <h3>登录 Codex</h3>
+              <span class="step-num">5</span>
+            </div>
+            <p>运行登录命令后，浏览器会打开授权页面。按提示登录你的 ChatGPT 账号即可。</p>
+            <div class="codebox">
+              <code>codex --login</code>
+              <button class="copy-btn" data-copy="codex --login" aria-label="复制登录命令">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <rect x="9" y="9" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="2" />
+                  <path d="M6 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                </svg>
+              </button>
+            </div>
+          </article>
+
+          <article class="step">
+            <div class="step-head">
+              <h3>进入项目文件夹</h3>
+              <span class="step-num">6</span>
+            </div>
+            <p>如果你还没有项目，可以先新建一个练手文件夹。</p>
+            <div class="codebox">
+              <code>mkdir my-first-codex-project<br />cd my-first-codex-project</code>
+              <button class="copy-btn" data-copy="mkdir my-first-codex-project&#10;cd my-first-codex-project" aria-label="复制新建项目命令">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <rect x="9" y="9" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="2" />
+                  <path d="M6 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                </svg>
+              </button>
+            </div>
+          </article>
+
+          <article class="step">
+            <div class="step-head">
+              <h3>启动 Codex</h3>
+              <span class="step-num">7</span>
+            </div>
+            <p>在项目文件夹里输入 codex，就可以开始用中文提需求。</p>
+            <div class="codebox">
+              <code>codex</code>
+              <button class="copy-btn" data-copy="codex" aria-label="复制启动命令">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <rect x="9" y="9" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="2" />
+                  <path d="M6 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                </svg>
+              </button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-title">
+          <h2>新手先这样用</h2>
+          <div class="section-index">03</div>
+        </div>
+        <p class="lead">刚开始不要急着让 Codex 全自动干活。先让它解释、规划、再修改，你会更容易掌控结果。</p>
+        <div class="grid-two">
+          <div class="mode-card">
+            <b>默认模式</b>
+            <span>适合新手。Codex 会先提出建议，你确认后再执行。</span>
+          </div>
+          <div class="mode-card">
+            <b>自动编辑模式</b>
+            <span>适合重复修改。Codex 可以自动改文件，但运行命令前仍会询问。</span>
+          </div>
+          <div class="mode-card">
+            <b>全自动模式</b>
+            <span>适合熟悉后使用。适合修构建、跑测试、原型开发等长任务。</span>
+          </div>
+          <div class="mode-card">
+            <b>小白原则</b>
+            <span>不懂就先问解释，重要修改前先让它说计划。</span>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-title">
+          <h2>第一次可以这样问</h2>
+          <div class="section-index">04</div>
+        </div>
+        <div class="prompt-list">
+          <div class="prompt-card">请解释这个项目的目录结构，用小白能听懂的话说。</div>
+          <div class="prompt-card">请帮我找出这个项目怎么启动。</div>
+          <div class="prompt-card">请帮我创建一个简单的个人介绍网页，包含头像、名字、简介和联系方式。</div>
+          <div class="prompt-card">请先不要改代码，只告诉我你的修改计划。</div>
+          <div class="prompt-card">每次修改后，请告诉我改了哪些文件，以及我应该怎么验证。</div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-title">
+          <h2>常见问题</h2>
+          <div class="section-index">05</div>
+        </div>
+        <div class="faq">
+          <details open>
+            <summary>我不会写代码，可以用 Codex 吗？</summary>
+            <p>可以。你负责说需求，Codex 负责解释、修改和执行。刚开始建议让它一步步说明。</p>
+          </details>
+          <details>
+            <summary>安装失败怎么办？</summary>
+            <p>先检查 Node.js 是否安装、npm 是否可用、网络是否稳定。也可以把终端里的报错复制给 Codex，让它帮你判断原因。</p>
+          </details>
+          <details>
+            <summary>Codex 和 ChatGPT 有什么区别？</summary>
+            <p>ChatGPT 更像对话助手；Codex 更像可以进入项目文件夹工作的编程助手，能读文件、改文件、运行命令。</p>
+          </details>
+          <details>
+            <summary>新手最该记住哪几个命令？</summary>
+            <p>先记住 npm -v、npm install -g @openai/codex、codex --login、cd 项目文件夹、codex。</p>
+          </details>
+        </div>
+      </section>
+
+      <section class="upgrade">
+        <div class="section-title">
+          <h2>最后：账号和会员</h2>
+          <div class="section-index">06</div>
+        </div>
+        <p class="lead">你的 ChatGPT 账号需要先完成登录。想更稳定地使用 Codex，建议升级到 Plus 或 Pro 会员后再使用。</p>
+        <div class="upgrade-panel">
+          <p>如果你只是第一次学习和跑通流程，先选 Plus 通常就够了。如果你每天都要长时间使用 Codex 做项目，再考虑 Pro。</p>
+          <div class="plan-row">
+            <div class="plan">
+              <strong>Plus 会员</strong>
+              <span>适合大多数新手和日常使用：学习、做网页、写脚本、改项目。</span>
+            </div>
+            <div class="plan">
+              <strong>Pro 会员</strong>
+              <span>适合高频开发用户：更长时间、更复杂任务、更多 Codex 使用需求。</span>
+            </div>
+          </div>
+          <p>升级路径：打开 chatgpt.com，进入账号菜单，点击 Settings / 设置，找到 My Plan / 我的方案，然后选择 Upgrade / 升级。也可以打开 OpenAI 官方价格页查看当前方案。</p>
+          <div class="codebox">
+            <code>https://openai.com/chatgpt/pricing/</code>
+            <button class="copy-btn" data-copy="https://openai.com/chatgpt/pricing/" aria-label="复制价格页链接">
+              <svg viewBox="0 0 24 24" fill="none">
+                <rect x="9" y="9" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="2" />
+                <path d="M6 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="cta">
+        <div class="cta-box">
+          <h2>先跑通，再变强</h2>
+          <p>会用 Codex 的第一步，不是学会所有命令，而是敢把一个清楚的小需求交给它。</p>
+          <span class="start-command">请帮我创建一个最简单的 H5 页面</span>
+        </div>
+      </section>
+    </main>
+
+    <div class="toast" role="status" aria-live="polite">已复制</div>
+
+    <script>
+      const toast = document.querySelector(".toast");
+      const showToast = () => {
+        toast.classList.add("show");
+        window.clearTimeout(showToast.timer);
+        showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 1400);
+      };
+
+      document.querySelectorAll("[data-copy]").forEach((button) => {
+        button.addEventListener("click", async () => {
+          const text = button.getAttribute("data-copy");
+          try {
+            await navigator.clipboard.writeText(text);
+            showToast();
+          } catch {
+            const area = document.createElement("textarea");
+            area.value = text;
+            document.body.appendChild(area);
+            area.select();
+            document.execCommand("copy");
+            area.remove();
+            showToast();
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
