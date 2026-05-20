@@ -1,0 +1,2816 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>提交模考报告 - AI 辅助原型</title>
+  <style>
+    :root {
+      --nav: #18284f;
+      --nav-2: #223766;
+      --brand: #2f75f6;
+      --brand-2: #5b8df8;
+      --ink: #1e2a3a;
+      --muted: #7a8596;
+      --weak: #aab3c0;
+      --line: #e6ebf2;
+      --line-strong: #d7deea;
+      --page: #f6f8fb;
+      --panel: #ffffff;
+      --soft-blue: #edf4ff;
+      --soft-green: #eaf8f2;
+      --soft-amber: #fff5e6;
+      --green: #1f9d72;
+      --amber: #d48722;
+      --red: #e25b5b;
+      --shadow: 0 14px 34px rgba(32, 45, 70, 0.08);
+      font-family: "Avenir Next", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--page);
+      min-width: 1180px;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 178px minmax(1000px, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: hidden;
+      color: rgba(255, 255, 255, 0.78);
+      background:
+        radial-gradient(circle at 70% 85%, rgba(255, 255, 255, 0.12), transparent 18%),
+        linear-gradient(180deg, var(--nav), #142449 72%, #182b59);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      height: 58px;
+      padding: 0 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      border: 1px solid rgba(255, 255, 255, 0.82);
+      border-radius: 50%;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .brand-text strong {
+      display: block;
+      color: #fff;
+      font-size: 13px;
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .brand-text span {
+      display: block;
+      margin-top: 2px;
+      color: rgba(255, 255, 255, 0.62);
+      font-size: 11px;
+    }
+
+    .nav-group {
+      padding: 12px 10px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-height: 38px;
+      padding: 0 10px;
+      border-radius: 6px;
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 13px;
+    }
+
+    .nav-item span:first-child {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .nav-item.active {
+      color: #fff;
+      background: #367cff;
+      box-shadow: 0 9px 20px rgba(47, 117, 246, 0.34);
+    }
+
+    .nav-item.sub {
+      margin-left: 18px;
+      color: rgba(255, 255, 255, 0.66);
+      font-size: 12px;
+    }
+
+    .dot-icon {
+      width: 14px;
+      height: 14px;
+      border: 1px solid currentColor;
+      border-radius: 4px;
+      opacity: 0.72;
+    }
+
+    .badge {
+      min-width: 22px;
+      height: 17px;
+      padding: 0 6px;
+      border-radius: 9px;
+      color: #fff;
+      background: #f15d5d;
+      font-size: 11px;
+      line-height: 17px;
+      text-align: center;
+    }
+
+    .main {
+      min-width: 0;
+      background: var(--page);
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 52px;
+      padding: 0 18px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(14px);
+    }
+
+    .top-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #445168;
+      font-size: 14px;
+    }
+
+    .refresh {
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: #647083;
+      background: #fff;
+    }
+
+    .user-area {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: #6c7788;
+      font-size: 13px;
+    }
+
+    .avatar {
+      display: grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      color: #ca862d;
+      background: #fff5df;
+      border: 1px solid #f2d59f;
+      font-size: 12px;
+    }
+
+    .content {
+      padding: 16px 22px 32px;
+    }
+
+    .crumbs {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 42px;
+      color: #6d7890;
+      font-size: 13px;
+    }
+
+    .crumbs a {
+      color: #6c9af7;
+      text-decoration: none;
+    }
+
+    .primary-btn,
+    .ghost-btn,
+    .plain-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 32px;
+      padding: 0 14px;
+      border-radius: 5px;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .primary-btn {
+      color: #fff;
+      background: var(--brand);
+      box-shadow: 0 8px 18px rgba(47, 117, 246, 0.24);
+    }
+
+    .ghost-btn {
+      color: var(--brand);
+      border: 1px solid #b8cffd;
+      background: #f7fbff;
+    }
+
+    .plain-btn {
+      color: #627086;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .report-shell {
+      padding: 18px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .tabs {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      height: 36px;
+      border-bottom: 1px solid var(--line-strong);
+    }
+
+    .tab {
+      position: relative;
+      height: 36px;
+      color: #6b7688;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .tab.active {
+      color: var(--brand);
+    }
+
+    .tab.active::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      height: 2px;
+      background: var(--brand);
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin: 18px 0 12px;
+      color: #1d2b41;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .info-dot {
+      display: grid;
+      place-items: center;
+      width: 15px;
+      height: 15px;
+      border: 1px solid #95a2b3;
+      border-radius: 50%;
+      color: #7b8796;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .exam-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr 1fr;
+      gap: 10px 42px;
+      max-width: 1220px;
+      color: #5f6b7d;
+      font-size: 13px;
+    }
+
+    .field-line {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 32px;
+    }
+
+    .field-line label {
+      min-width: 72px;
+      color: #7b8594;
+    }
+
+    .field-line strong {
+      color: #465267;
+      font-weight: 600;
+    }
+
+    .input,
+    .select {
+      height: 30px;
+      min-width: 160px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      color: #4c586b;
+      background: #fff;
+      outline: none;
+    }
+
+    .radio-row {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      color: #687589;
+    }
+
+    .hint {
+      margin-left: 8px;
+      color: #e99636;
+      font-size: 12px;
+    }
+
+    .ai-copy {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .ai-mark {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      color: #fff;
+      background: linear-gradient(135deg, #2f75f6, #42b98f);
+      font-weight: 800;
+      flex: 0 0 auto;
+    }
+
+    .ai-copy strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #20304a;
+      font-size: 15px;
+    }
+
+    .ai-copy p {
+      margin: 0;
+      color: #687589;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .source-list {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .source-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 26px;
+      padding: 0 9px;
+      border: 1px solid #cfe0ff;
+      border-radius: 14px;
+      color: #3d6ed4;
+      background: #fff;
+      font-size: 12px;
+    }
+
+    .source-chip.ok::before,
+    .quality-pill::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    .assessment-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .quality {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #667386;
+      font-size: 12px;
+    }
+
+    .quality-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 24px;
+      padding: 0 9px;
+      border-radius: 12px;
+      color: #177052;
+      background: var(--soft-green);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 13px;
+    }
+
+    .assessment-table {
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      vertical-align: middle;
+    }
+
+    th {
+      height: 40px;
+      color: #303b4f;
+      background: #fafcff;
+      font-weight: 800;
+    }
+
+    td {
+      min-height: 42px;
+      padding: 9px 10px;
+      color: #475368;
+    }
+
+    .category {
+      width: 92px;
+      color: #2e3a4d;
+      font-weight: 700;
+      text-align: center;
+      background: #fcfdff;
+    }
+
+    .score-select {
+      width: 92px;
+      height: 28px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      color: #586477;
+      background: #fff;
+      font-size: 12px;
+    }
+
+    .ai-text {
+      min-height: 32px;
+      color: #2f3b4e;
+      line-height: 1.55;
+    }
+
+    .basis {
+      color: #6f7d91;
+      line-height: 1.55;
+    }
+
+    .basis small {
+      display: inline-block;
+      margin-right: 6px;
+      color: #8b96a7;
+    }
+
+    .editor-section {
+      margin-top: 22px;
+    }
+
+    .editor-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .required {
+      color: #ef6a6a;
+      margin-right: 4px;
+    }
+
+    .editor-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      height: 34px;
+      padding: 0 8px;
+      border: 1px solid var(--line);
+      border-bottom: 0;
+      color: #778397;
+      background: #fcfdff;
+      font-size: 12px;
+    }
+
+    .tool {
+      display: grid;
+      place-items: center;
+      min-width: 24px;
+      height: 24px;
+      border-radius: 4px;
+    }
+
+    .tool:hover {
+      color: var(--brand);
+      background: #edf4ff;
+    }
+
+    .tool-select {
+      height: 24px;
+      margin: 0 6px;
+      border: 0;
+      color: #788397;
+      background: transparent;
+      font-size: 12px;
+    }
+
+    .editor {
+      width: 100%;
+      min-height: 178px;
+      padding: 18px 18px;
+      border: 1px solid var(--line);
+      color: #344055;
+      background: #fff;
+      resize: vertical;
+      outline: none;
+      line-height: 1.8;
+      font-size: 13px;
+    }
+
+    .editor:focus {
+      border-color: #aac7ff;
+      box-shadow: 0 0 0 3px rgba(47, 117, 246, 0.08);
+    }
+
+    .analysis-editor {
+      min-height: 232px;
+    }
+
+    .plan-editor {
+      min-height: 188px;
+    }
+
+    .floating-summary {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 8;
+      width: 360px;
+      border: 1px solid #cfe0ff;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 20px 46px rgba(37, 61, 110, 0.18);
+      backdrop-filter: blur(14px);
+      overflow: hidden;
+      transition: width 180ms ease, transform 180ms ease;
+    }
+
+    .floating-summary.collapsed {
+      width: 224px;
+    }
+
+    .floating-summary h3 {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 0;
+      color: #22304a;
+      font-size: 14px;
+    }
+
+    .floating-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #fbfdff, #fff);
+    }
+
+    .floating-title {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+    }
+
+    .floating-title h3 {
+      white-space: nowrap;
+    }
+
+    .floating-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: 0 0 auto;
+    }
+
+    .floating-toggle {
+      display: grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: #667386;
+      background: #fff;
+      font-size: 15px;
+    }
+
+    .floating-body {
+      padding: 14px;
+    }
+
+    .floating-summary.collapsed .floating-body {
+      display: none;
+    }
+
+    .floating-summary.collapsed .floating-head {
+      border-bottom: 0;
+    }
+
+    .floating-summary.collapsed .status-warn,
+    .floating-summary.collapsed .status-ok {
+      display: none;
+    }
+
+    .floating-summary .ai-copy {
+      margin-bottom: 12px;
+    }
+
+    .floating-summary .ai-copy strong {
+      font-size: 14px;
+    }
+
+    .floating-summary .source-list {
+      justify-content: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .floating-summary .primary-btn {
+      width: 100%;
+    }
+
+    .progress {
+      height: 7px;
+      overflow: hidden;
+      border-radius: 9px;
+      background: #e8eef8;
+    }
+
+    .progress span {
+      display: block;
+      width: 82%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--brand), #41ba8c);
+      transition: width 240ms ease;
+    }
+
+    .summary-lines {
+      display: grid;
+      gap: 8px;
+      margin: 12px 0 0;
+      color: #637086;
+      font-size: 12px;
+    }
+
+    .summary-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .floating-current {
+      margin: 10px 0 0;
+      padding: 8px 10px;
+      border: 1px solid #e3e9f2;
+      border-radius: 7px;
+      color: #647086;
+      background: #fbfdff;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .floating-async-actions {
+      display: none;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .floating-async-actions.show {
+      display: grid;
+    }
+
+    .floating-async-actions .primary-btn,
+    .floating-async-actions .ghost-btn {
+      width: 100%;
+      padding: 0 10px;
+    }
+
+    .status-ok {
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    .status-warn {
+      color: var(--amber);
+      font-weight: 700;
+    }
+
+    .toast {
+      position: fixed;
+      top: 66px;
+      right: 24px;
+      z-index: 20;
+      display: none;
+      align-items: center;
+      gap: 9px;
+      padding: 10px 14px;
+      border: 1px solid #bae5d2;
+      border-radius: 7px;
+      color: #17694f;
+      background: #f0fbf6;
+      box-shadow: 0 14px 30px rgba(33, 65, 82, 0.12);
+      font-size: 13px;
+    }
+
+    .toast.show {
+      display: flex;
+      animation: drop 260ms ease both;
+    }
+
+    .modal-layer,
+    .drawer-mask {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      display: none;
+      background: rgba(17, 29, 55, 0.34);
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-layer.open,
+    .drawer-mask.open {
+      display: block;
+    }
+
+    .generation-panel {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: min(1080px, calc(100vw - 72px));
+      max-height: calc(100vh - 72px);
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border-radius: 10px;
+      background: #fff;
+      box-shadow: 0 28px 70px rgba(20, 34, 65, 0.24);
+    }
+
+    .panel-titlebar,
+    .drawer-titlebar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .panel-titlebar h3,
+    .drawer-titlebar h3 {
+      margin: 0;
+      color: #1d2b41;
+      font-size: 18px;
+    }
+
+    .drawer-titlebar p {
+      margin: 4px 0 0;
+      color: #687589;
+      font-size: 13px;
+    }
+
+    .panel-titlebar p {
+      margin: 4px 0 0;
+      color: #687589;
+      font-size: 13px;
+    }
+
+    .icon-btn {
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: #6d7890;
+      background: #fff;
+      font-size: 18px;
+    }
+
+    .generation-body {
+      overflow: auto;
+      padding: 18px 20px;
+      background: #f8fafc;
+    }
+
+    .generation-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.05fr 0.9fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .generation-state {
+      display: none;
+    }
+
+    .generation-state.active {
+      display: block;
+    }
+
+    .generating-card,
+    .result-card {
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    .generating-hero {
+      display: grid;
+      grid-template-columns: 76px minmax(0, 1fr);
+      gap: 18px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .ai-spinner {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: #edf4ff;
+    }
+
+    .ai-spinner::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border: 4px solid #d7e6ff;
+      border-top-color: var(--brand);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    .ai-spinner span {
+      position: relative;
+      color: var(--brand);
+      font-weight: 800;
+    }
+
+    .generating-hero h4,
+    .result-card h4 {
+      margin: 0 0 6px;
+      color: #20304a;
+      font-size: 17px;
+    }
+
+    .generating-hero p,
+    .result-card p {
+      margin: 0;
+      color: #6a778b;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .generation-progress {
+      height: 8px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e8eef8;
+    }
+
+    .generation-progress span {
+      display: block;
+      width: 8%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--brand), #41ba8c);
+      transition: width 420ms ease;
+    }
+
+    .generation-step-list {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .generation-step {
+      min-height: 72px;
+      padding: 10px;
+      border: 1px solid #e3e9f2;
+      border-radius: 8px;
+      background: #fbfdff;
+    }
+
+    .generation-step strong {
+      display: block;
+      margin-bottom: 5px;
+      color: #25334a;
+      font-size: 13px;
+    }
+
+    .generation-step span {
+      color: #778397;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .generation-step.done {
+      border-color: #bfe8d5;
+      background: #f0fbf6;
+    }
+
+    .generation-step.current {
+      border-color: #aac7ff;
+      background: #f3f8ff;
+      box-shadow: 0 0 0 3px rgba(47, 117, 246, 0.08);
+    }
+
+    .result-edit-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .result-edit-item {
+      min-width: 0;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfdff;
+    }
+
+    .result-edit-item.wide {
+      grid-column: 1 / -1;
+    }
+
+    .result-edit-item label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+      color: #25334a;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .result-edit-item label span {
+      color: #7a8596;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .result-editor {
+      width: 100%;
+      min-height: 132px;
+      padding: 10px;
+      border: 1px solid #dfe6f0;
+      border-radius: 6px;
+      color: #344055;
+      background: #fff;
+      resize: vertical;
+      outline: none;
+      line-height: 1.65;
+      font-size: 13px;
+    }
+
+    .result-editor:focus {
+      border-color: #aac7ff;
+      box-shadow: 0 0 0 3px rgba(47, 117, 246, 0.08);
+    }
+
+    .assessment-result-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 7px;
+      max-height: 172px;
+      overflow: auto;
+      padding: 10px;
+      border: 1px solid #dfe6f0;
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    .assessment-result-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      min-height: 30px;
+      padding: 6px 8px;
+      border: 1px solid #e7edf5;
+      border-radius: 6px;
+      color: #4a5669;
+      background: #fbfdff;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .assessment-result-item strong {
+      color: #25334a;
+      white-space: nowrap;
+    }
+
+    .confirm-block {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .confirm-block h4 {
+      margin: 0 0 10px;
+      color: #25334a;
+      font-size: 14px;
+    }
+
+    .scope-list,
+    .source-confirm-list,
+    .supplement-list {
+      display: grid;
+      gap: 9px;
+    }
+
+    .scope-item,
+    .confirm-source,
+    .supplement-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      padding: 10px;
+      border: 1px solid #e3e9f2;
+      border-radius: 7px;
+      background: #fbfdff;
+    }
+
+    .scope-item input,
+    .confirm-source input {
+      margin-top: 3px;
+      accent-color: var(--brand);
+    }
+
+    .scope-item strong,
+    .confirm-source strong {
+      display: block;
+      margin-bottom: 3px;
+      color: #26344a;
+      font-size: 13px;
+    }
+
+    .scope-item span,
+    .confirm-source span,
+    .supplement-item span {
+      color: #6f7c90;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .source-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .source-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 3px;
+    }
+
+    .source-title-row strong {
+      margin-bottom: 0;
+    }
+
+    .feedback-choice-list {
+      display: grid;
+      gap: 6px;
+      margin-top: 9px;
+    }
+
+    .feedback-choice {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 28px;
+      padding: 5px 8px;
+      border: 1px solid #e3e9f2;
+      border-radius: 6px;
+      background: #fff;
+      color: #627086;
+      font-size: 12px;
+    }
+
+    .feedback-choice input {
+      margin: 0;
+      accent-color: var(--brand);
+    }
+
+    .mini-tag {
+      display: inline-flex;
+      align-items: center;
+      height: 22px;
+      padding: 0 7px;
+      border-radius: 11px;
+      color: #4667a8;
+      background: #edf4ff;
+      font-size: 12px;
+    }
+
+    .supplement-editor {
+      width: 100%;
+      min-height: 142px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: #344055;
+      resize: vertical;
+      outline: none;
+      line-height: 1.6;
+    }
+
+    .supplement-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .panel-footer,
+    .drawer-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 12px 20px;
+      border-top: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .selection-count {
+      margin-right: auto;
+      color: #687589;
+      font-size: 13px;
+    }
+
+    .feedback-drawer,
+    .homework-drawer {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: min(920px, calc(100vw - 178px));
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+      box-shadow: -24px 0 60px rgba(20, 34, 65, 0.2);
+      animation: slideIn 180ms ease both;
+    }
+
+    .homework-drawer {
+      width: min(1120px, calc(100vw - 178px));
+    }
+
+    .drawer-body {
+      flex: 1;
+      overflow: auto;
+      padding: 18px;
+      background:
+        radial-gradient(circle at 86% 8%, rgba(47, 117, 246, 0.06), transparent 21%),
+        #f8fafc;
+    }
+
+    .drawer-filter {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.86);
+      box-shadow: 0 10px 22px rgba(31, 47, 76, 0.05);
+    }
+
+    .filter-fields,
+    .filter-actions {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .filter-field {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #687589;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .date-input {
+      height: 30px;
+      min-width: 136px;
+      padding: 0 8px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: #4c586b;
+      background: #fff;
+      outline: none;
+    }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      padding: 26px;
+      border: 1px dashed #cbd6e6;
+      border-radius: 9px;
+      color: #7a8596;
+      background: #fff;
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .feedback-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .feedback-card {
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: #fff;
+      overflow: hidden;
+      box-shadow: 0 12px 28px rgba(31, 47, 76, 0.07);
+    }
+
+    .feedback-card-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #fbfdff, #fff);
+    }
+
+    .feedback-card-head strong {
+      display: block;
+      color: #1f3150;
+      font-size: 14px;
+    }
+
+    .feedback-card-head span {
+      color: #718096;
+      font-size: 12px;
+    }
+
+    .feedback-pick {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 28px;
+      padding: 0 9px;
+      border: 1px solid #cfe0ff;
+      border-radius: 14px;
+      color: #4667a8;
+      background: #f7fbff;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .feedback-pick input {
+      margin: 0;
+      accent-color: var(--brand);
+    }
+
+    .feedback-card-body {
+      padding: 12px 14px 14px;
+    }
+
+    .ribbon {
+      display: inline-flex;
+      align-items: center;
+      height: 28px;
+      margin: 4px 0 10px;
+      padding: 0 12px;
+      border-radius: 4px;
+      color: #fff;
+      background: linear-gradient(180deg, #62b2ff, #0757e9);
+      font-weight: 800;
+      letter-spacing: 1px;
+      transform: skew(-6deg);
+    }
+
+    .ribbon span {
+      transform: skew(6deg);
+    }
+
+    .feedback-row {
+      display: grid;
+      grid-template-columns: 106px minmax(0, 1fr);
+      gap: 10px;
+      padding: 7px 0;
+      color: #344055;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .feedback-row label {
+      color: #0f477d;
+      font-weight: 800;
+    }
+
+    .tag-soft {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 0 8px;
+      border: 1px solid #cfe0ff;
+      border-radius: 3px;
+      color: var(--brand);
+      background: #f3f8ff;
+    }
+
+    .tag-warn {
+      color: #d98222;
+      border-color: #f6d9bf;
+      background: #fff7ef;
+    }
+
+    .stars {
+      color: #ffb200;
+      letter-spacing: 2px;
+      white-space: nowrap;
+    }
+
+    .homework-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+
+    .homework-toolbar p {
+      margin: 0;
+      color: #687589;
+      font-size: 13px;
+    }
+
+    .homework-table {
+      border: 1px solid var(--line);
+      background: #fff;
+      box-shadow: 0 12px 28px rgba(31, 47, 76, 0.07);
+    }
+
+    .homework-table th {
+      height: 38px;
+      font-size: 12px;
+    }
+
+    .homework-table td {
+      padding: 10px;
+      font-size: 12px;
+      line-height: 1.55;
+      vertical-align: top;
+    }
+
+    .homework-table .check-cell {
+      width: 44px;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .homework-table input[type="checkbox"] {
+      accent-color: var(--brand);
+    }
+
+    .knowledge-summary {
+      display: grid;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .knowledge-summary-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .knowledge-summary-top strong {
+      color: #25334a;
+      font-size: 13px;
+    }
+
+    .knowledge-weak {
+      display: grid;
+      gap: 4px;
+      color: #687589;
+    }
+
+    .knowledge-weak span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .knowledge-toggle {
+      justify-self: start;
+      height: 26px;
+      padding: 0 9px;
+      border: 1px solid #cfe0ff;
+      border-radius: 5px;
+      color: var(--brand);
+      background: #f7fbff;
+      font-size: 12px;
+    }
+
+    .knowledge-detail-row {
+      display: none;
+    }
+
+    .knowledge-detail-row.open {
+      display: table-row;
+    }
+
+    .knowledge-detail-cell {
+      padding: 0;
+      background: #fbfdff;
+    }
+
+    .knowledge-detail-panel {
+      max-height: 230px;
+      overflow: auto;
+      padding: 12px 14px;
+      border-left: 3px solid #aac7ff;
+    }
+
+    .knowledge-detail-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+      color: #536176;
+      font-size: 12px;
+    }
+
+    .knowledge-detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .knowledge-item {
+      min-width: 0;
+      padding: 9px;
+      border: 1px solid #e3e9f2;
+      border-radius: 7px;
+      background: #fff;
+    }
+
+    .knowledge-item-name {
+      display: block;
+      color: #344055;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    .knowledge-item-score {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 7px;
+    }
+
+    .knowledge-bar {
+      flex: 1;
+      height: 6px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e8eef8;
+    }
+
+    .knowledge-bar span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #2f75f6, #41ba8c);
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(28px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes drop {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 1300px) {
+      .source-list {
+        justify-content: flex-start;
+      }
+
+      .floating-summary {
+        position: static;
+        width: auto;
+        margin-top: 18px;
+      }
+
+      .generation-layout,
+      .feedback-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">AI</div>
+        <div class="brand-text">
+          <strong>VISION ACADEMY</strong>
+          <span>教学管理平台</span>
+        </div>
+      </div>
+      <nav class="nav-group" aria-label="主导航">
+        <div class="nav-item"><span><i class="dot-icon"></i>课堂</span></div>
+        <div class="nav-item"><span><i class="dot-icon"></i>班级</span></div>
+        <div class="nav-item"><span><i class="dot-icon"></i>学员</span></div>
+        <div class="nav-item"><span><i class="dot-icon"></i>作业</span><b class="badge">12</b></div>
+        <div class="nav-item"><span><i class="dot-icon"></i>模考</span><b class="badge">28</b></div>
+        <div class="nav-item sub"><span>模考试卷</span><b class="badge">9</b></div>
+        <div class="nav-item sub active"><span>模考报告</span><b class="badge">19</b></div>
+        <div class="nav-item"><span><i class="dot-icon"></i>反馈</span></div>
+        <div class="nav-item"><span><i class="dot-icon"></i>调训</span></div>
+        <div class="nav-item"><span><i class="dot-icon"></i>学生卡</span></div>
+        <div class="nav-item"><span><i class="dot-icon"></i>诊听课</span></div>
+        <div class="nav-item"><span><i class="dot-icon"></i>学情查询</span></div>
+        <div class="nav-item"><span><i class="dot-icon"></i>管理</span></div>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="top-left">
+          <button class="refresh" type="button" aria-label="刷新">↻</button>
+          <strong>教学工作台</strong>
+        </div>
+        <div class="user-area">
+          <span class="avatar">成</span>
+          <span>成兴玲</span>
+          <a>退出</a>
+        </div>
+      </header>
+
+      <div class="content">
+        <div class="crumbs">
+          <div><a href="#">返回</a><span> / 提交模考报告</span></div>
+          <button class="primary-btn" type="button" id="submitReport">提交</button>
+        </div>
+
+        <section class="report-shell">
+          <div class="tabs">
+            <button class="tab active" type="button">模考报告</button>
+          </div>
+
+          <h2 class="section-title">考试信息 <span class="info-dot">i</span></h2>
+          <div class="exam-grid">
+            <div class="field-line"><label>模考名称:</label><strong>2026-上实A2 P3-经济期末模考(75min)</strong></div>
+            <div class="field-line"><label>科目:</label><strong>经济</strong></div>
+            <div class="field-line"><label>批改老师:</label><strong>成兴玲</strong></div>
+            <div class="field-line"><label>学生姓名:</label><strong>采分测试6</strong></div>
+            <div class="field-line"><label>提交时间:</label><strong>2026-04-09 22:19:50</strong></div>
+            <div></div>
+            <div class="field-line"><label><span class="required">*</span>学生得分:</label><input class="input" id="scoreInput" value="A+/30.0"></div>
+            <div class="field-line"><label><span class="required">*</span>当前等第:</label><input class="input" value="A"></div>
+            <div class="field-line"><label><span class="required">*</span>目标等第:</label><input class="input" value="A*"></div>
+            <div class="field-line">
+              <label><span class="required">*</span>学业预警:</label>
+              <div class="radio-row">
+                <label><input type="radio" name="warn"> 需要预警</label>
+                <label><input type="radio" name="warn" checked> 不需要预警</label>
+                <span class="hint">AI 已结合已选课堂、作业与本次模考综合判断</span>
+              </div>
+            </div>
+            <div></div>
+            <div></div>
+            <div class="field-line"><label><span class="required">*</span>预计大考成绩:</label><select class="select"><option>选择大考成绩</option><option selected>A/A*</option><option>B</option></select></div>
+          </div>
+
+          <div class="assessment-head">
+            <h2 class="section-title" style="margin:0">学情评估</h2>
+            <div class="quality">
+              <span class="quality-pill">可提交</span>
+              <span>评分由课堂反馈、作业完成情况、模考表现综合生成</span>
+            </div>
+          </div>
+
+          <table class="assessment-table" aria-label="学情评估">
+            <colgroup>
+              <col style="width:96px">
+              <col style="width:285px">
+              <col style="width:110px">
+              <col>
+              <col>
+            </colgroup>
+            <thead>
+              <tr>
+                <th>评估类别</th>
+                <th>评估项目</th>
+                <th>评级</th>
+                <th>学员表现</th>
+                <th>学习建议</th>
+              </tr>
+            </thead>
+            <tbody id="assessmentBody"></tbody>
+          </table>
+
+          <section class="editor-section">
+            <div class="editor-head">
+              <h2 class="section-title" style="margin:0"><span class="required">*</span>本阶段教学内容</h2>
+              <div class="editor-actions">
+                <button class="plain-btn" type="button" id="sourceFeedbackBtn">查看授课反馈详情</button>
+              </div>
+            </div>
+            <div class="toolbar" aria-hidden="true">
+              <select class="tool-select"><option>正文</option></select>
+              <span class="tool">B</span><span class="tool">U</span><span class="tool">I</span><span class="tool">A</span>
+              <select class="tool-select"><option>默认字号</option></select>
+              <select class="tool-select"><option>默认字体</option></select>
+              <span class="tool">≡</span><span class="tool">☑</span><span class="tool">↶</span><span class="tool">↷</span><span class="tool">□</span>
+            </div>
+            <textarea class="editor" id="stageContent" placeholder="确认本次生成范围和引用数据后，AI 将在这里生成阶段教学内容。"></textarea>
+          </section>
+
+          <section class="editor-section">
+            <div class="editor-head">
+              <h2 class="section-title" style="margin:0"><span class="required">*</span>学生表现及模考情况分析</h2>
+              <div class="editor-actions">
+                <button class="plain-btn" type="button" id="sourceHomeworkBtn">查看全部作业</button>
+              </div>
+            </div>
+            <div class="toolbar" aria-hidden="true">
+              <select class="tool-select"><option>正文</option></select>
+              <span class="tool">B</span><span class="tool">U</span><span class="tool">I</span><span class="tool">A</span>
+              <select class="tool-select"><option>默认字号</option></select>
+              <select class="tool-select"><option>默认字体</option></select>
+              <span class="tool">≡</span><span class="tool">☑</span><span class="tool">↶</span><span class="tool">↷</span><span class="tool">□</span>
+            </div>
+            <textarea class="editor analysis-editor" id="mockAnalysis" placeholder="确认生成后，AI 将结合本次模考完成情况和得分情况输出分析。"></textarea>
+          </section>
+
+          <section class="editor-section">
+            <div class="editor-head">
+              <h2 class="section-title" style="margin:0"><span class="required">*</span>后续教学计划</h2>
+              <div class="editor-actions">
+                <label class="radio-row"><input type="radio" name="plan"> 课程规划</label>
+                <label class="radio-row"><input type="radio" name="plan" checked> 文本</label>
+                <button class="plain-btn" type="button">查看往期规划</button>
+              </div>
+            </div>
+            <div class="toolbar" aria-hidden="true">
+              <select class="tool-select"><option>正文</option></select>
+              <span class="tool">B</span><span class="tool">U</span><span class="tool">I</span><span class="tool">A</span>
+              <select class="tool-select"><option>默认字号</option></select>
+              <select class="tool-select"><option>默认字体</option></select>
+              <span class="tool">≡</span><span class="tool">☑</span><span class="tool">↶</span><span class="tool">↷</span><span class="tool">□</span>
+            </div>
+            <textarea class="editor plan-editor" id="teachingPlan" placeholder="确认生成后，AI 将基于薄弱点和后续课程安排输出教学计划。"></textarea>
+          </section>
+
+          <aside class="floating-summary" id="aiAssistant" aria-label="AI 报告助手">
+            <div class="floating-head">
+              <div class="floating-title">
+                <div class="ai-mark">AI</div>
+                <h3><span>AI 报告助手</span></h3>
+              </div>
+              <div class="floating-actions">
+                <span class="status-warn" id="readyText">待确认</span>
+                <button class="floating-toggle" type="button" id="toggleAssistant" aria-label="收起 AI 报告助手">⌄</button>
+              </div>
+            </div>
+            <div class="floating-body">
+              <div class="ai-copy">
+                <div>
+                  <strong>生成前先确认本次引用内容</strong>
+                  <p>老师可修改生成范围或补充观察信息；确认后 AI 会回填到对应文本框，内容仍可继续编辑。</p>
+                </div>
+              </div>
+              <div class="source-list">
+                <span class="source-chip ok" id="feedbackSourceChip">4 条授课反馈</span>
+                <span class="source-chip ok" id="homeworkSourceChip">6 次作业记录</span>
+                <span class="source-chip ok">本次模考作答</span>
+              </div>
+              <button class="primary-btn" type="button" id="generateBtn">选择生成内容</button>
+              <div class="summary-lines">
+                <div class="summary-line" data-summary-scope="assessment"><span>学情评估</span><span class="status-warn" id="assessStatus">待生成</span></div>
+                <div class="summary-line" data-summary-scope="content"><span>阶段教学内容</span><span class="status-warn" id="contentStatus">待生成</span></div>
+                <div class="summary-line" data-summary-scope="analysis"><span>模考分析</span><span class="status-warn" id="analysisStatus">待生成</span></div>
+                <div class="summary-line" data-summary-scope="plan"><span>教学计划</span><span class="status-warn" id="planStatus">待生成</span></div>
+              </div>
+              <div class="floating-current" id="floatingCurrentStep">等待老师确认生成范围和引用数据。</div>
+              <div class="floating-async-actions" id="floatingResultActions">
+                <button class="ghost-btn" type="button" id="previewGenerated">查看结果</button>
+                <button class="primary-btn" type="button" id="applyGeneratedFloating">确认填入</button>
+              </div>
+            </div>
+          </aside>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast">已根据最新课堂反馈、作业记录和模考作答重新生成</div>
+
+  <div class="modal-layer" id="generationModal" aria-hidden="true">
+    <section class="generation-panel" role="dialog" aria-modal="true" aria-labelledby="generationTitle">
+      <header class="panel-titlebar">
+        <div>
+          <h3 id="generationTitle">AI 生成前确认</h3>
+          <p>确认本次要生成的模块、引用的数据和老师补充信息。确认后 AI 会回填报告正文。</p>
+        </div>
+        <button class="icon-btn" type="button" id="closeGeneration" aria-label="关闭">×</button>
+      </header>
+      <div class="generation-body">
+        <div class="generation-state active" id="confirmState">
+          <div class="generation-layout">
+          <section class="confirm-block">
+            <h4>生成范围</h4>
+            <div class="scope-list">
+              <label class="scope-item">
+                <input type="checkbox" class="generation-scope" data-scope="assessment" checked>
+                <span><strong>学情评估</strong><span>根据课堂反馈、作业和模考表现生成评级、表现与建议。</span></span>
+              </label>
+              <label class="scope-item">
+                <input type="checkbox" class="generation-scope" data-scope="content" checked>
+                <span><strong>本阶段教学内容</strong><span>从授课反馈的“本次课程内容”字段提炼阶段重点。</span></span>
+              </label>
+              <label class="scope-item">
+                <input type="checkbox" class="generation-scope" data-scope="analysis" checked>
+                <span><strong>学生表现及模考情况分析</strong><span>结合得分、题型表现和薄弱点输出模考分析。</span></span>
+              </label>
+              <label class="scope-item">
+                <input type="checkbox" class="generation-scope" data-scope="plan" checked>
+                <span><strong>后续教学计划</strong><span>基于薄弱项和目标等第生成下一阶段计划。</span></span>
+              </label>
+            </div>
+          </section>
+
+          <section class="confirm-block">
+            <h4>引用数据确认</h4>
+            <div class="source-confirm-list">
+              <div class="confirm-source">
+                <input type="checkbox" checked>
+                <span>
+                  <span class="source-title-row">
+                    <strong>授课反馈</strong>
+                    <button class="plain-btn" type="button" id="modalFeedbackBtn">查看授课反馈详情</button>
+                  </span>
+                  <span>用于学情评估和阶段教学内容总结，具体选择在详情抽屉中调整。</span>
+                  <span class="source-meta"><span class="mini-tag" id="feedbackSourceSummary">已选 4/4 条</span><span class="mini-tag">最近一次 2025-09-05</span></span>
+                </span>
+              </div>
+              <div class="confirm-source">
+                <input type="checkbox" checked>
+                <span>
+                  <span class="source-title-row">
+                    <strong>作业记录</strong>
+                    <button class="plain-btn" type="button" id="pastHomeworkBtn">查看全部作业</button>
+                  </span>
+                  <span>用于判断作业完成度、订正情况和知识迁移，具体选择在作业抽屉中调整。</span>
+                  <span class="source-meta"><span class="mini-tag" id="homeworkSourceSummary">已选 6/6 次</span><span class="mini-tag">平均得分 86%</span></span>
+                </span>
+              </div>
+              <label class="confirm-source">
+                <input type="checkbox" checked>
+                <span>
+                  <strong>本次模考作答与得分</strong>
+                  <span>用于输出模考难度、得分表现和薄弱题型。</span>
+                  <span class="source-meta"><span class="mini-tag">A+/30.0</span><span class="mini-tag">长答案待加强</span></span>
+                </span>
+              </label>
+            </div>
+          </section>
+
+          <section class="confirm-block">
+            <h4>老师补充 / 新增依据</h4>
+            <textarea class="supplement-editor" id="supplementInput" placeholder="例如：学生最近上课主动性明显提升，但考前复习节奏略紧；长答案需要强化评价句式。"></textarea>
+          </section>
+          </div>
+        </div>
+
+        <div class="generation-state" id="generatingState">
+          <section class="generating-card">
+            <div class="generating-hero">
+              <div class="ai-spinner"><span>AI</span></div>
+              <div>
+                <h4 id="generatingTitle">正在生成模考报告</h4>
+                <p id="generatingDesc">大模型正在读取授课反馈、作业记录和本次模考作答。真实场景预计需要 30-60 秒，请保持当前页面打开。</p>
+              </div>
+            </div>
+            <div class="generation-progress"><span id="generationProgress"></span></div>
+            <div class="generation-step-list">
+              <div class="generation-step current" data-step="0"><strong>读取数据</strong><span>校验授课反馈、作业和模考作答</span></div>
+              <div class="generation-step" data-step="1"><strong>提炼重点</strong><span>总结阶段教学内容和薄弱点</span></div>
+              <div class="generation-step" data-step="2"><strong>生成报告</strong><span>输出评估、分析和教学计划</span></div>
+              <div class="generation-step" data-step="3"><strong>等待确认</strong><span>老师确认后再填入表单</span></div>
+            </div>
+          </section>
+        </div>
+
+        <div class="generation-state" id="resultState">
+          <section class="result-card">
+            <h4>AI 已生成完成，请确认是否填入报告</h4>
+            <p>以下为本次生成结果，可在此直接编辑。点击“确认填入报告”后，编辑后的内容会写入下方表格和文本框。</p>
+            <div class="result-edit-grid">
+              <div class="result-edit-item">
+                <label>学情评估结果 <span>只读，确认后写入评级表</span></label>
+                <div class="assessment-result-list" id="resultAssessmentList"></div>
+              </div>
+              <div class="result-edit-item">
+                <label for="resultStageContent">阶段教学内容 <span>将填入本阶段教学内容</span></label>
+                <textarea class="result-editor" id="resultStageContent"></textarea>
+              </div>
+              <div class="result-edit-item wide">
+                <label for="resultMockAnalysis">学生表现及模考情况分析 <span>将填入模考分析文本框</span></label>
+                <textarea class="result-editor" id="resultMockAnalysis"></textarea>
+              </div>
+              <div class="result-edit-item wide">
+                <label for="resultTeachingPlan">后续教学计划 <span>将填入后续教学计划文本框</span></label>
+                <textarea class="result-editor" id="resultTeachingPlan"></textarea>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+      <footer class="panel-footer">
+        <button class="plain-btn" type="button" id="cancelGeneration">取消</button>
+        <button class="ghost-btn" type="button" id="saveGenerationConfig">保存配置</button>
+        <button class="plain-btn" type="button" id="backToConfig" style="display:none">返回修改</button>
+        <button class="primary-btn" type="button" id="confirmGeneration">确认并生成</button>
+        <button class="primary-btn" type="button" id="applyGenerated" style="display:none">确认填入报告</button>
+      </footer>
+    </section>
+  </div>
+
+  <div class="drawer-mask" id="feedbackDrawer" aria-hidden="true">
+    <aside class="feedback-drawer" role="dialog" aria-modal="true" aria-labelledby="feedbackTitle">
+      <header class="drawer-titlebar">
+        <div>
+          <h3 id="feedbackTitle">授课反馈详情</h3>
+          <p>勾选本次要提供给 AI 的课堂反馈，详情可用于生成阶段教学内容和学情评估。</p>
+        </div>
+        <button class="icon-btn" type="button" id="closeFeedbackDrawer" aria-label="关闭">×</button>
+      </header>
+      <div class="drawer-body">
+        <div class="drawer-filter" aria-label="授课反馈筛选">
+          <div class="filter-fields">
+            <label class="filter-field">提交日期<input class="date-input" type="date" id="feedbackStartDate" value="2025-08-01"></label>
+            <label class="filter-field">至<input class="date-input" type="date" id="feedbackEndDate" value="2025-09-30"></label>
+            <button class="ghost-btn" type="button" id="filterFeedbackBtn">筛选</button>
+            <button class="plain-btn" type="button" id="resetFeedbackFilter">重置</button>
+          </div>
+          <div class="filter-actions">
+            <button class="plain-btn" type="button" id="selectAllFeedback">全选</button>
+            <button class="plain-btn" type="button" id="clearAllFeedback">取消全选</button>
+          </div>
+        </div>
+        <div class="feedback-grid" id="feedbackCards"></div>
+      </div>
+      <footer class="drawer-footer">
+        <span class="selection-count" id="feedbackSelectionCount">已选择 4 条授课反馈给 AI</span>
+        <button class="plain-btn" type="button" id="drawerCloseBtn">关闭</button>
+        <button class="primary-btn" type="button" id="confirmFeedbackSelection">确认选择</button>
+      </footer>
+    </aside>
+  </div>
+
+  <div class="drawer-mask" id="homeworkDrawer" aria-hidden="true">
+    <aside class="homework-drawer" role="dialog" aria-modal="true" aria-labelledby="homeworkTitle">
+      <header class="drawer-titlebar">
+        <div>
+          <h3 id="homeworkTitle">全部作业</h3>
+          <p>选择需要提供给 AI 的作业记录，AI 会读取点评、得分和知识点得分率。</p>
+        </div>
+        <button class="icon-btn" type="button" id="closeHomeworkDrawer" aria-label="关闭">×</button>
+      </header>
+      <div class="drawer-body">
+        <div class="drawer-filter" aria-label="作业筛选">
+          <div class="filter-fields">
+            <label class="filter-field">提交日期<input class="date-input" type="date" id="homeworkStartDate" value="2025-08-01"></label>
+            <label class="filter-field">至<input class="date-input" type="date" id="homeworkEndDate" value="2025-09-30"></label>
+            <button class="ghost-btn" type="button" id="filterHomeworkBtn">筛选</button>
+            <button class="plain-btn" type="button" id="resetHomeworkFilter">重置</button>
+          </div>
+          <div class="filter-actions">
+            <button class="plain-btn" type="button" id="selectAllHomework">全选</button>
+            <button class="plain-btn" type="button" id="clearAllHomework">取消全选</button>
+          </div>
+        </div>
+        <div class="homework-toolbar">
+          <p>默认选中近 6 次作业，可按需剔除异常或不相关记录。</p>
+          <span class="mini-tag" id="homeworkAvgTag">已选平均得分 86%</span>
+        </div>
+        <table class="homework-table" aria-label="全部作业">
+          <colgroup>
+            <col style="width:44px">
+            <col style="width:155px">
+            <col style="width:150px">
+            <col style="width:95px">
+            <col style="width:80px">
+            <col>
+            <col style="width:260px">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>选择</th>
+              <th>班级名称</th>
+              <th>上课时间</th>
+              <th>班型</th>
+              <th>得分</th>
+              <th>作业点评</th>
+              <th>知识点概览</th>
+            </tr>
+          </thead>
+          <tbody id="homeworkRows"></tbody>
+        </table>
+      </div>
+      <footer class="drawer-footer">
+        <span class="selection-count" id="homeworkSelectionCount">已选择 6 次作业给 AI</span>
+        <button class="plain-btn" type="button" id="homeworkDrawerCloseBtn">关闭</button>
+        <button class="primary-btn" type="button" id="confirmHomeworkSelection">确认选择</button>
+      </footer>
+    </aside>
+  </div>
+
+  <script>
+    const rows = [
+      ["学科知识", "阶段目标完成度", "A", "已完成本阶段核心知识点学习，宏观指标与供需分析掌握较稳定。", "保持每周错题复盘，继续用结构化语言解释经济现象。", 3],
+      ["学科知识", "课堂练习及课后作业正确率", "A-", "近期作业完成及时，计算类题目正确率较高，长答案仍有少量漏点。", "答题前先列关键词，完成后检查结论是否回应题干。", 0],
+      ["学科知识", "其他相关学科表现（数学计算、英文等）", "B+", "英文题干理解基本顺畅，图表描述和经济术语表达仍需提升。", "积累高频经济表达，训练图表题的比较句式。", 0],
+      ["学习能力", "知识点记忆背诵", "A-", "关键概念记忆较牢，个别定义在压力下表述不够完整。", "用概念卡片巩固定义、公式和适用场景。", 4],
+      ["学习能力", "知识点应用", "B+", "能够完成常规应用题，面对综合场景时迁移速度偏慢。", "增加跨章节综合题训练，强化从材料提取变量的步骤。", 0],
+      ["学习能力", "高阶知识点及扩展内容的理解力", "B+", "对市场失灵、政府干预等扩展内容有初步理解，但论证深度不足。", "练习使用原因、影响、评价三段式展开。", 0],
+      ["学习能力", "细心耐心", "A-", "计算过程较规范，偶有单位、图例或关键词遗漏。", "保留最后 3 分钟检查图表标注与关键词。", 0],
+      ["学习意愿", "上课或课后提问", "A", "课堂互动积极，能主动追问错因和替代表达方式。", "继续带着错题和疑问进入下一节课。", 4],
+      ["学习意愿", "作业辅导完成度", "A", "作业辅导配合度高，订正完成较完整。", "订正时补充“为什么错”和“下次如何判断”。", 0],
+      ["学习意愿", "周期计划执行度", "A-", "阶段复习计划执行较稳定，临近模考前复习节奏略紧。", "把复习任务前置到每周固定时间段。", 0],
+      ["学习意愿", "非练习类任务完成度（例如笔记整理、错题整理、资料阅读）", "B+", "课堂笔记较完整，错题归类和资料阅读深度仍可加强。", "按知识点整理错题，并补充同类题的解题模板。", 0]
+    ];
+
+    const feedbacks = [
+      {
+        teacher: "成兴玲",
+        student: "测试事业部19",
+        course: "IBIG-经济-EDX-IG-线上",
+        time: "2025-08-15 16:00~18:00",
+        stageContent: "完成宏观经济目标、GDP 与通胀指标复习，结合真题练习区分名义值和实际值。",
+        courseContent: "本次课程重点讲解宏观经济指标的定义、计算口径和图表读取方法，训练学生用经济术语解释数据变化。",
+        suggestion: "课后完成宏观指标错题订正，补充整理 GDP、CPI、失业率三类指标的常见问法。",
+        accuracy: "86%",
+        homework: "宏观指标专项练习 18 题，已完成 17 题。",
+        homeworkComment: "计算步骤较完整，个别题目对题干限定条件关注不足。",
+        attitude: "态度端正",
+        issue: "背诵不足",
+        participation: 5,
+        concentration: 4,
+        mastery: 4,
+        history: 5,
+        remark: "积极思考，学习热情高涨"
+      },
+      {
+        teacher: "成兴玲",
+        student: "测试事业部19",
+        course: "IBIG-经济-EDX-IG-线上",
+        time: "2025-08-22 16:00~18:00",
+        stageContent: "推进供需关系与曲线移动，重点区分价格变化和非价格因素导致的移动。",
+        courseContent: "本次课程内容覆盖需求、供给、均衡价格、曲线移动与图表题表达，练习从材料中提取变量并完成图示。",
+        suggestion: "整理供需曲线移动判断表，训练每道图表题写出原因、移动方向和结果。",
+        accuracy: "88%",
+        homework: "供需曲线移动专项题 20 题，按时提交。",
+        homeworkComment: "判断方向整体准确，图表标注偶有遗漏。",
+        attitude: "态度端正",
+        issue: "图表细节",
+        participation: 5,
+        concentration: 5,
+        mastery: 4,
+        history: 4,
+        remark: "能够主动追问错因，课堂互动较好"
+      },
+      {
+        teacher: "成兴玲",
+        student: "测试事业部19",
+        course: "IBIG-经济-EDX-IG-线上",
+        time: "2025-08-29 16:00~18:00",
+        stageContent: "讲解价格弹性、收入弹性和交叉弹性，训练公式应用与经济含义解释。",
+        courseContent: "本次课程内容围绕弹性计算、弹性大小判断、总收益变化和题干关键词识别展开，强化计算题步骤表达。",
+        suggestion: "计算题保留公式、代入和结论三步；长答案补充弹性大小对企业决策的影响。",
+        accuracy: "83%",
+        homework: "弹性计算与解释练习，订正完成。",
+        homeworkComment: "公式掌握较好，文字解释有时不够完整。",
+        attitude: "积极配合",
+        issue: "表达不完整",
+        participation: 4,
+        concentration: 4,
+        mastery: 4,
+        history: 4,
+        remark: "计算稳定，解释题需要增加评价句"
+      },
+      {
+        teacher: "成兴玲",
+        student: "测试事业部19",
+        course: "IBIG-经济-EDX-IG-线上",
+        time: "2025-09-05 16:00~18:00",
+        stageContent: "复习市场失灵、政府干预和政策评价，结合模考题型进行限时训练。",
+        courseContent: "本次课程内容聚焦外部性、公共物品、税收补贴、价格管制及政策评价结构，训练学生用短期影响、长期影响和限制条件展开。",
+        suggestion: "长答案按定义、分析、评价、回扣题目的结构书写；考前复习优先处理政策评价类错题。",
+        accuracy: "89%",
+        homework: "市场失灵与政策评价真题 3 组，完成度较高。",
+        homeworkComment: "知识点调用准确，论证层次还可进一步拉开。",
+        attitude: "态度端正",
+        issue: "评价深度",
+        participation: 5,
+        concentration: 4,
+        mastery: 5,
+        history: 5,
+        remark: "掌握并准确运用知识点"
+      }
+    ];
+
+    const homeworks = [
+      {
+        className: "IBIG-经济-EDX-IG-线上 A2",
+        time: "2025-08-15 16:00",
+        type: "1v1",
+        score: "86%",
+        comment: "宏观指标专项练习完成度高，计算步骤较完整，个别题目对限定条件关注不足。",
+        knowledge: [
+          ["GDP 与通胀", 90],
+          ["失业率解释", 84],
+          ["图表读取", 82],
+          ["Nominal GDP real GDP consumer price index inflation unemployment rate interpretation and limitations", 79],
+          ["宏观经济目标之间的冲突与取舍", 81],
+          ["经济增长的衡量", 88],
+          ["CPI basket weighting base year percentage change calculation and data reliability discussion", 76],
+          ["需求侧政策基础", 83],
+          ["供给侧政策基础", 85],
+          ["财政政策对总需求的影响", 87],
+          ["货币政策传导机制", 80],
+          ["国际收支基础概念", 78],
+          ["汇率变化影响", 82],
+          ["总需求与总供给图像识别", 84],
+          ["短答题关键词提取", 86],
+          ["评价句式完整度", 75],
+          ["经济术语英文表达", 77],
+          ["Data response question command word evaluate discuss explain compare distinguish application", 74],
+          ["材料限定条件识别", 81],
+          ["结论回扣题干", 79]
+        ]
+      },
+      {
+        className: "IBIG-经济-EDX-IG-线上 A2",
+        time: "2025-08-22 16:00",
+        type: "1v1",
+        score: "88%",
+        comment: "供需曲线移动判断整体准确，图表标注和均衡点变化偶有遗漏。",
+        knowledge: [["需求变动", 92], ["供给变动", 88], ["均衡分析", 84]]
+      },
+      {
+        className: "IBIG-经济-EDX-IG-线上 A2",
+        time: "2025-08-29 16:00",
+        type: "1v1",
+        score: "83%",
+        comment: "弹性公式掌握较好，文字解释需要补充经济含义和结论回扣。",
+        knowledge: [["价格弹性", 86], ["收入弹性", 82], ["总收益判断", 78]]
+      },
+      {
+        className: "IBIG-经济-EDX-IG-线上 A2",
+        time: "2025-09-05 16:00",
+        type: "1v1",
+        score: "89%",
+        comment: "市场失灵和政策评价知识点调用准确，长答案论证层次还可进一步拉开。",
+        knowledge: [["外部性", 91], ["公共物品", 88], ["政策评价", 86]]
+      },
+      {
+        className: "IBIG-经济-EDX-IG-线上 A2",
+        time: "2025-09-12 16:00",
+        type: "小班",
+        score: "84%",
+        comment: "市场结构题能识别基础特征，但垄断和寡头比较中的关键词还不够稳定。",
+        knowledge: [["完全竞争", 88], ["垄断市场", 82], ["寡头市场", 80]]
+      },
+      {
+        className: "IBIG-经济-EDX-IG-线上 A2",
+        time: "2025-09-19 16:00",
+        type: "小班",
+        score: "87%",
+        comment: "综合题完成较认真，能按步骤订正，评价句式和英文术语表达仍需加强。",
+        knowledge: [["综合应用", 86], ["评价表达", 82], ["经济术语", 90]]
+      }
+    ];
+
+    feedbacks.forEach((item, index) => {
+      item.id = `feedback-${index}`;
+      item.submitDate = ["2025-08-16", "2025-08-23", "2025-08-30", "2025-09-06"][index];
+      item.selected = true;
+    });
+
+    feedbacks.push(
+      {
+        id: "feedback-4",
+        selected: false,
+        submitDate: "2025-07-19",
+        teacher: "成兴玲",
+        student: "测试事业部19",
+        course: "IBIG-经济-EDX-IG-线上",
+        time: "2025-07-18 16:00~18:00",
+        stageContent: "完成基础经济问题、机会成本和生产可能性曲线复习。",
+        courseContent: "本次课程围绕稀缺性、选择、机会成本与 PPF 图像展开，训练学生区分曲线内外点和资源配置含义。",
+        suggestion: "补充整理 PPF 图像移动原因，并完成基础概念判断题订正。",
+        accuracy: "81%",
+        homework: "基础经济问题练习 16 题。",
+        homeworkComment: "概念题整体稳定，图像解释仍需补充关键词。",
+        attitude: "积极配合",
+        issue: "概念表述",
+        participation: 4,
+        concentration: 4,
+        mastery: 4,
+        history: 4,
+        remark: "能跟随课堂节奏完成练习"
+      },
+      {
+        id: "feedback-5",
+        selected: false,
+        submitDate: "2025-10-04",
+        teacher: "成兴玲",
+        student: "测试事业部19",
+        course: "IBIG-经济-EDX-IG-线上",
+        time: "2025-10-03 16:00~18:00",
+        stageContent: "完成国际贸易、汇率与保护主义政策复习。",
+        courseContent: "本次课程训练关税、配额、汇率变动对消费者、生产者和政府的影响分析。",
+        suggestion: "整理贸易保护政策优缺点，并练习用 welfare loss 解释图像。",
+        accuracy: "85%",
+        homework: "国际贸易专项题 2 组。",
+        homeworkComment: "政策影响判断较好，图像福利损失解释略简略。",
+        attitude: "态度端正",
+        issue: "图像论证",
+        participation: 5,
+        concentration: 4,
+        mastery: 4,
+        history: 4,
+        remark: "能主动比较不同政策效果"
+      }
+    );
+
+    homeworks.forEach((item, index) => {
+      item.id = `homework-${index}`;
+      item.submitDate = ["2025-08-16", "2025-08-23", "2025-08-30", "2025-09-06", "2025-09-13", "2025-09-20"][index];
+      item.selected = true;
+    });
+
+    homeworks.push(
+      {
+        id: "homework-6",
+        selected: false,
+        submitDate: "2025-07-20",
+        className: "IBIG-经济-EDX-IG-线上 A2",
+        time: "2025-07-18 16:00",
+        type: "1v1",
+        score: "80%",
+        comment: "基础经济问题练习已完成，机会成本和 PPF 图像解释需要补充完整句。",
+        knowledge: [["Scarcity choice opportunity cost production possibility frontier movement and efficient allocation", 76], ["机会成本", 84], ["PPF 图像解释", 78]]
+      },
+      {
+        id: "homework-7",
+        selected: false,
+        submitDate: "2025-10-05",
+        className: "IBIG-经济-EDX-IG-线上 A2",
+        time: "2025-10-03 16:00",
+        type: "小班",
+        score: "85%",
+        comment: "国际贸易专项题完成较好，关税图像中的福利损失和评价表达仍需加强。",
+        knowledge: [["Tariff quota exchange rate appreciation depreciation balance of payments current account protectionism evaluation", 82], ["关税图像", 86], ["贸易保护评价", 84]]
+      }
+    );
+
+    const stageText = `1、上期教学计划执行情况：
+本阶段围绕 AS 经济的核心模块推进，重点完成了宏观经济指标、供需关系、价格弹性、市场结构与政府干预相关内容。学生能够跟随课堂节奏完成基础概念理解，并在练习中逐步形成“读题 - 提取变量 - 图表呈现 - 结论解释”的答题链路。
+
+2、学习的章节和重点难点：
+近期课程内容集中在供需曲线移动、弹性计算与解释、市场失灵及政策评价。学生对概念记忆和基础计算掌握较好，难点主要体现在综合题中把材料信息转化为经济语言，以及长答案中原因、影响、评价的层次组织。`;
+
+    const analysisText = `1、本次模考难度及学生水平分析：
+模考难度整体为中等偏上，题目覆盖概念识记、图表分析、计算应用和长答案论证。学生本次得分为 A+/30.0，整体表现高于阶段预期，说明近期课堂内容吸收较好，基础题和常规应用题完成稳定。
+
+2、掌握较好的知识点以及有进步的地方：
+学生在供需关系判断、弹性基础计算、宏观指标含义和短答题关键词提取方面表现较好。相比前期，图表题的读题速度和结论表达更清晰，作业订正后同类错误重复率有所下降。
+
+3、需要加强的知识点：
+长答案仍需要提升论证完整度，尤其是政策评价类题目中，需要同时写出短期影响、长期影响和可能限制。英文经济术语表达还可以更精准，避免概念理解正确但表述丢分。
+
+4、考试习惯建议：
+建议作答时先标记题干中的评价词和限定条件，计算题保留关键步骤，长答案用“定义 - 分析 - 评价 - 回扣题目”的结构展开。`;
+
+    const planText = `1、接下来的教学计划：
+继续巩固市场失灵、政府干预、宏观目标之间的冲突与取舍，结合真题训练图表分析和长答案表达。每周安排一次限时小测，追踪学生在综合题中的知识迁移和书面表达稳定性。
+
+2、后续学习建议：
+课后保持错题整理，把错因分为概念不清、读题遗漏、计算失误、表达不完整四类。每次订正补写同类题解题模板，并积累高频经济术语和评价句式。`;
+
+    function renderAssessment(generated = false) {
+      const body = document.getElementById("assessmentBody");
+      body.innerHTML = "";
+      rows.forEach((row, index) => {
+        const tr = document.createElement("tr");
+        if (row[5]) {
+          const td = document.createElement("td");
+          td.className = "category";
+          td.rowSpan = row[5];
+          td.textContent = row[0];
+          tr.appendChild(td);
+        }
+
+        tr.innerHTML += `
+          <td>${row[1]}</td>
+          <td><select class="score-select" aria-label="${row[1]}评级">
+            ${["选择评级", "A+", "A", "A-", "B+", "B", "B-", "C"].map(score => `<option ${generated && score === row[2] ? "selected" : ""}>${score}</option>`).join("")}
+          </select></td>
+          <td><div class="ai-text">${generated ? row[3] : "确认本次生成依据后，AI 将自动生成学员表现。"}</div><div class="basis"><small>依据:</small>${generated ? (index < 3 ? "授课反馈、作业正确率、本次模考得分" : index < 7 ? "课堂练习、错题订正、模考作答过程" : "上课互动、作业辅导、学习任务记录") : "待确认授课反馈、作业记录和模考作答"}</div></td>
+          <td>${generated ? row[4] : "确认后生成个性化学习建议，老师可继续修改。"}</td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    function stars(count) {
+      return "★".repeat(count) + "☆".repeat(5 - count);
+    }
+
+    function inDateRange(date, start, end) {
+      return (!start || date >= start) && (!end || date <= end);
+    }
+
+    function getFeedbackVisibleItems() {
+      const start = document.getElementById("feedbackStartDate").value;
+      const end = document.getElementById("feedbackEndDate").value;
+      return feedbacks.filter((item) => inDateRange(item.submitDate, start, end));
+    }
+
+    function getHomeworkVisibleItems() {
+      const start = document.getElementById("homeworkStartDate").value;
+      const end = document.getElementById("homeworkEndDate").value;
+      return homeworks.filter((item) => inDateRange(item.submitDate, start, end));
+    }
+
+    function renderFeedbackCards() {
+      const target = document.getElementById("feedbackCards");
+      const visibleItems = getFeedbackVisibleItems();
+      if (!visibleItems.length) {
+        target.innerHTML = `<div class="empty-state">当前提交日期范围内没有授课反馈，可调整日期后重新筛选。</div>`;
+        updateFeedbackSelection();
+        return;
+      }
+      target.innerHTML = visibleItems.map((item, index) => `
+        <article class="feedback-card">
+          <div class="feedback-card-head">
+            <div>
+              <strong>第 ${index + 1} 次授课反馈</strong>
+              <span>${item.time} · 提交 ${item.submitDate}</span>
+            </div>
+            <label class="feedback-pick"><input type="checkbox" class="feedback-ai-check" data-id="${item.id}" ${item.selected ? "checked" : ""}> 给 AI</label>
+          </div>
+          <div class="feedback-card-body">
+            <div class="ribbon"><span>基础信息</span></div>
+            <div class="feedback-row"><label>老师姓名</label><span>${item.teacher}</span></div>
+            <div class="feedback-row"><label>学生姓名</label><span>${item.student}</span></div>
+            <div class="feedback-row"><label>课程名称</label><span>${item.course}</span></div>
+            <div class="feedback-row"><label>上课时间</label><span>${item.time}</span></div>
+            <div class="feedback-row"><label>本节课内容</label><span>${item.stageContent}</span></div>
+
+            <div class="ribbon"><span>整体点评</span></div>
+            <div class="feedback-row"><label>本次课程内容</label><span>${item.courseContent}</span></div>
+            <div class="feedback-row"><label>课后学习建议</label><span>${item.suggestion}</span></div>
+            <div class="feedback-row"><label>上次作业正确率</label><span>${item.accuracy}</span></div>
+            <div class="feedback-row"><label>本次作业</label><span>${item.homework}</span></div>
+            <div class="feedback-row"><label>上次作业点评</label><span>${item.homeworkComment}</span></div>
+
+            <div class="ribbon"><span>学生点评</span></div>
+            <div class="feedback-row"><label>课堂表现</label><span><span class="tag-soft">${item.attitude}</span></span></div>
+            <div class="feedback-row"><label>存在问题</label><span><span class="tag-soft tag-warn">${item.issue}</span></span></div>
+            <div class="feedback-row"><label>课堂参与度</label><span><span class="stars">${stars(item.participation)}</span> ${item.remark}</span></div>
+            <div class="feedback-row"><label>上课集中程度</label><span><span class="stars">${stars(item.concentration)}</span> 比较集中</span></div>
+            <div class="feedback-row"><label>本节课内容掌握度</label><span><span class="stars">${stars(item.mastery)}</span> 偶尔犯小错误</span></div>
+            <div class="feedback-row"><label>历史知识点掌握度</label><span><span class="stars">${stars(item.history)}</span> 掌握并准确运用知识点</span></div>
+          </div>
+        </article>
+      `).join("");
+      updateFeedbackSelection();
+    }
+
+    function renderHomeworkRows() {
+      const target = document.getElementById("homeworkRows");
+      const visibleItems = getHomeworkVisibleItems();
+      if (!visibleItems.length) {
+        target.innerHTML = `<tr><td colspan="7"><div class="empty-state">当前提交日期范围内没有作业记录，可调整日期后重新筛选。</div></td></tr>`;
+        updateHomeworkSelection();
+        return;
+      }
+      target.innerHTML = visibleItems.map((item, index) => {
+        const average = Math.round(item.knowledge.reduce((sum, [, rate]) => sum + rate, 0) / item.knowledge.length);
+        const weakest = [...item.knowledge].sort((a, b) => a[1] - b[1]).slice(0, 2);
+        return `
+        <tr>
+          <td class="check-cell"><input type="checkbox" class="homework-ai-check" data-id="${item.id}" data-score="${parseInt(item.score, 10)}" ${item.selected ? "checked" : ""} aria-label="选择第 ${index + 1} 次作业"></td>
+          <td><strong>${item.className}</strong></td>
+          <td>${item.time}<br><span class="mini-tag">提交 ${item.submitDate}</span></td>
+          <td><span class="mini-tag">${item.type}</span></td>
+          <td><strong>${item.score}</strong></td>
+          <td>${item.comment}</td>
+          <td>
+            <div class="knowledge-summary">
+              <div class="knowledge-summary-top">
+                <strong>${item.knowledge.length} 个知识点</strong>
+                <span class="mini-tag">均分 ${average}%</span>
+              </div>
+              <div class="knowledge-weak">
+                ${weakest.map(([name, rate]) => `<span title="${name}">${name} ${rate}%</span>`).join("")}
+              </div>
+              <button class="knowledge-toggle" type="button" data-homework-index="${index}" aria-expanded="false">展开知识点</button>
+            </div>
+          </td>
+        </tr>
+        <tr class="knowledge-detail-row" data-knowledge-detail="${index}">
+          <td class="knowledge-detail-cell" colspan="7">
+            <div class="knowledge-detail-panel">
+              <div class="knowledge-detail-head">
+                <strong>${item.className} · ${item.time}</strong>
+                <span>${item.knowledge.length} 个知识点，长名称会自动换行，列表区域可滚动</span>
+              </div>
+              <div class="knowledge-detail-grid">
+                ${item.knowledge.map(([name, rate]) => `
+                <div class="knowledge-item">
+                  <span class="knowledge-item-name">${name}</span>
+                  <span class="knowledge-item-score"><span class="knowledge-bar" aria-hidden="true"><span style="width:${rate}%"></span></span><strong>${rate}%</strong></span>
+                </div>
+              `).join("")}
+              </div>
+            </div>
+          </td>
+        </tr>
+      `;
+      }).join("");
+      updateHomeworkSelection();
+    }
+
+    function toggleKnowledgeDetail(button) {
+      const index = button.dataset.homeworkIndex;
+      const row = document.querySelector(`[data-knowledge-detail="${index}"]`);
+      const open = row.classList.toggle("open");
+      button.textContent = open ? "收起知识点" : "展开知识点";
+      button.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+
+    function updateFeedbackSelection() {
+      const visibleItems = getFeedbackVisibleItems();
+      const visibleSelected = visibleItems.filter((item) => item.selected).length;
+      const totalSelected = feedbacks.filter((item) => item.selected).length;
+      document.getElementById("feedbackSelectionCount").textContent = `当前筛选 ${visibleItems.length} 条，已选择 ${visibleSelected} 条授课反馈给 AI`;
+      document.getElementById("feedbackSourceSummary").textContent = `已选 ${totalSelected}/${feedbacks.length} 条`;
+      document.getElementById("feedbackSourceChip").textContent = `${totalSelected} 条授课反馈`;
+    }
+
+    function updateHomeworkSelection() {
+      const visibleItems = getHomeworkVisibleItems();
+      const visibleSelected = visibleItems.filter((item) => item.selected).length;
+      const selectedItems = homeworks.filter((item) => item.selected);
+      const selected = selectedItems.length;
+      const average = selected
+        ? Math.round(selectedItems.reduce((sum, item) => sum + parseInt(item.score, 10), 0) / selected)
+        : 0;
+      document.getElementById("homeworkSelectionCount").textContent = `当前筛选 ${visibleItems.length} 次，已选择 ${visibleSelected} 次作业给 AI`;
+      document.getElementById("homeworkSourceSummary").textContent = `已选 ${selected}/${homeworks.length} 次`;
+      document.getElementById("homeworkSourceChip").textContent = `${selected} 次作业记录`;
+      document.getElementById("homeworkAvgTag").textContent = selected ? `已选平均得分 ${average}%` : "暂未选择作业";
+    }
+
+    function setVisibleFeedbackSelection(selected) {
+      getFeedbackVisibleItems().forEach((item) => {
+        item.selected = selected;
+      });
+      renderFeedbackCards();
+      showToast(selected ? "已全选当前筛选出的授课反馈" : "已取消选择当前筛选出的授课反馈");
+    }
+
+    function setVisibleHomeworkSelection(selected) {
+      getHomeworkVisibleItems().forEach((item) => {
+        item.selected = selected;
+      });
+      renderHomeworkRows();
+      showToast(selected ? "已全选当前筛选出的作业" : "已取消选择当前筛选出的作业");
+    }
+
+    const scopeStatusMap = {
+      assessment: { id: "assessStatus", pending: "待生成", generating: "生成中", done: "11 项已评级" },
+      content: { id: "contentStatus", pending: "待生成", generating: "生成中", done: "已提炼" },
+      analysis: { id: "analysisStatus", pending: "待生成", generating: "生成中", done: "待老师复核" },
+      plan: { id: "planStatus", pending: "待生成", generating: "生成中", done: "待老师复核" }
+    };
+
+    function getSelectedScopes() {
+      return Array.from(document.querySelectorAll(".generation-scope"))
+        .filter((item) => item.checked)
+        .map((item) => item.dataset.scope);
+    }
+
+    function setScopeStatuses(state) {
+      Object.entries(scopeStatusMap).forEach(([scope, config]) => {
+        const selected = getSelectedScopes().includes(scope);
+        const line = document.querySelector(`[data-summary-scope="${scope}"]`);
+        const status = document.getElementById(config.id);
+        line.style.display = selected ? "" : "none";
+        status.textContent = config[state];
+        status.className = state === "done" && scope !== "analysis" && scope !== "plan" ? "status-ok" : "status-warn";
+      });
+    }
+
+    function openLayer(id) {
+      const layer = document.getElementById(id);
+      layer.classList.add("open");
+      layer.setAttribute("aria-hidden", "false");
+      if (id === "generationModal") {
+        setGenerationState("confirm");
+      }
+    }
+
+    function closeLayer(id) {
+      if (id === "generationModal" && window.reportGenerating) {
+        forceCloseGenerationModal();
+        return;
+      }
+      const layer = document.getElementById(id);
+      layer.classList.remove("open");
+      layer.setAttribute("aria-hidden", "true");
+    }
+
+    function forceCloseGenerationModal() {
+      const layer = document.getElementById("generationModal");
+      layer.classList.remove("open");
+      layer.setAttribute("aria-hidden", "true");
+    }
+
+    function openGenerationResult() {
+      const layer = document.getElementById("generationModal");
+      layer.classList.add("open");
+      layer.setAttribute("aria-hidden", "false");
+      setGenerationState("result");
+    }
+
+    function setGenerationState(state) {
+      const states = {
+        confirm: document.getElementById("confirmState"),
+        generating: document.getElementById("generatingState"),
+        result: document.getElementById("resultState")
+      };
+      Object.values(states).forEach((item) => item.classList.remove("active"));
+      states[state].classList.add("active");
+
+      document.getElementById("cancelGeneration").style.display = state === "generating" ? "none" : "";
+      document.getElementById("saveGenerationConfig").style.display = state === "confirm" ? "" : "none";
+      document.getElementById("backToConfig").style.display = state === "result" ? "" : "none";
+      document.getElementById("confirmGeneration").style.display = state === "confirm" ? "" : "none";
+      document.getElementById("applyGenerated").style.display = state === "result" ? "" : "none";
+      document.getElementById("closeGeneration").style.visibility = state === "generating" ? "hidden" : "visible";
+
+      const title = document.getElementById("generationTitle");
+      if (state === "confirm") title.textContent = "AI 生成前确认";
+      if (state === "generating") title.textContent = "AI 正在生成";
+      if (state === "result") title.textContent = "AI 生成完成";
+      if (state === "result") hydrateGeneratedEditors(false);
+    }
+
+    function hydrateGeneratedEditors(force) {
+      const values = {
+        resultStageContent: stageText,
+        resultMockAnalysis: analysisText,
+        resultTeachingPlan: planText
+      };
+      Object.entries(values).forEach(([id, value]) => {
+        const target = document.getElementById(id);
+        if (target && (force || !target.value.trim())) {
+          target.value = value;
+        }
+      });
+      renderGeneratedAssessmentResult();
+    }
+
+    function renderGeneratedAssessmentResult() {
+      const target = document.getElementById("resultAssessmentList");
+      if (!target) return;
+      target.innerHTML = rows.map((row) => `
+        <div class="assessment-result-item">
+          <span>${row[1]}</span>
+          <strong>${row[2] || "null"}</strong>
+        </div>
+      `).join("");
+    }
+
+    function getEditedGeneratedValue(id, fallback) {
+      const target = document.getElementById(id);
+      return target && target.value.trim() ? target.value : fallback;
+    }
+
+    function updateGenerationProgress(index) {
+      const progressMap = [18, 43, 72, 100];
+      const titleMap = [
+        "正在读取学习数据",
+        "正在提炼阶段重点",
+        "正在生成报告内容",
+        "生成完成，等待老师确认"
+      ];
+      const descMap = [
+        "正在校验已选授课反馈、作业记录和本次模考作答。",
+        "正在从课程内容、作业正确率和模考薄弱点中提炼关键依据。",
+        "正在生成学情评估、本阶段教学内容、模考分析和后续教学计划。",
+        "生成结果已准备好。老师确认后，内容才会填入报告表单。"
+      ];
+
+      document.getElementById("generationProgress").style.width = `${progressMap[index]}%`;
+      document.getElementById("generatingTitle").textContent = titleMap[index];
+      document.getElementById("generatingDesc").textContent = descMap[index];
+      document.getElementById("floatingCurrentStep").textContent = descMap[index];
+      document.querySelectorAll(".generation-step").forEach((item, stepIndex) => {
+        item.classList.toggle("done", stepIndex < index);
+        item.classList.toggle("current", stepIndex === index);
+      });
+    }
+
+    function startGeneration() {
+      window.reportGenerating = true;
+      window.generatedReady = false;
+      window.clearInterval(window.generationTimer);
+      setGenerationState("generating");
+      updateGenerationProgress(0);
+      forceCloseGenerationModal();
+      document.getElementById("readyText").textContent = "生成中";
+      document.getElementById("readyText").className = "status-warn";
+      document.getElementById("generateBtn").disabled = true;
+      document.getElementById("generateBtn").textContent = "生成中...";
+      document.getElementById("floatingResultActions").classList.remove("show");
+      setScopeStatuses("generating");
+      showToast("AI 已在后台生成，老师可以继续填写页面");
+
+      let step = 0;
+      window.generationTimer = window.setInterval(() => {
+        step += 1;
+        updateGenerationProgress(step);
+        if (step >= 3) {
+          window.clearInterval(window.generationTimer);
+          window.reportGenerating = false;
+          window.generatedReady = true;
+          document.getElementById("readyText").textContent = "待确认";
+          document.getElementById("readyText").className = "status-warn";
+          document.getElementById("generateBtn").disabled = false;
+          document.getElementById("generateBtn").textContent = "重新生成内容";
+          document.getElementById("floatingResultActions").classList.add("show");
+          document.getElementById("floatingCurrentStep").textContent = "AI 已生成完成，请查看结果或确认填入报告。";
+          hydrateGeneratedEditors(true);
+          setGenerationState("result");
+          showToast("AI 生成完成，请确认后填入报告");
+        }
+      }, 1300);
+    }
+
+    function fillReport() {
+      renderAssessment(true);
+      document.getElementById("stageContent").value = getEditedGeneratedValue("resultStageContent", stageText);
+      document.getElementById("mockAnalysis").value = getEditedGeneratedValue("resultMockAnalysis", analysisText);
+      document.getElementById("teachingPlan").value = getEditedGeneratedValue("resultTeachingPlan", planText);
+      document.getElementById("readyText").textContent = "已更新";
+      document.getElementById("readyText").className = "status-ok";
+      setScopeStatuses("done");
+      document.getElementById("floatingCurrentStep").textContent = "AI 内容已填入报告表单，老师可继续编辑后提交。";
+      document.getElementById("floatingResultActions").classList.remove("show");
+      document.getElementById("generateBtn").textContent = "重新生成内容";
+      window.generatedReady = false;
+      showToast("已填入报告表单，老师可继续编辑");
+    }
+
+    function applyGeneratedReport() {
+      forceCloseGenerationModal();
+      fillReport();
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.clearTimeout(window.toastTimer);
+      window.toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    renderAssessment(false);
+    renderFeedbackCards();
+    renderHomeworkRows();
+    updateFeedbackSelection();
+    updateHomeworkSelection();
+    setScopeStatuses("pending");
+
+    document.getElementById("generateBtn").addEventListener("click", () => openLayer("generationModal"));
+    document.getElementById("closeGeneration").addEventListener("click", () => closeLayer("generationModal"));
+    document.getElementById("cancelGeneration").addEventListener("click", () => closeLayer("generationModal"));
+    document.getElementById("saveGenerationConfig").addEventListener("click", () => showToast("生成配置已保存，可稍后继续生成"));
+    document.getElementById("confirmGeneration").addEventListener("click", startGeneration);
+    document.getElementById("backToConfig").addEventListener("click", () => setGenerationState("confirm"));
+    document.getElementById("applyGenerated").addEventListener("click", applyGeneratedReport);
+    document.getElementById("previewGenerated").addEventListener("click", openGenerationResult);
+    document.getElementById("applyGeneratedFloating").addEventListener("click", applyGeneratedReport);
+    document.getElementById("sourceFeedbackBtn").addEventListener("click", () => openLayer("feedbackDrawer"));
+    document.getElementById("modalFeedbackBtn").addEventListener("click", () => openLayer("feedbackDrawer"));
+    document.getElementById("sourceHomeworkBtn").addEventListener("click", () => openLayer("homeworkDrawer"));
+    document.getElementById("pastHomeworkBtn").addEventListener("click", () => openLayer("homeworkDrawer"));
+    document.getElementById("closeFeedbackDrawer").addEventListener("click", () => closeLayer("feedbackDrawer"));
+    document.getElementById("drawerCloseBtn").addEventListener("click", () => closeLayer("feedbackDrawer"));
+    document.getElementById("confirmFeedbackSelection").addEventListener("click", () => {
+      updateFeedbackSelection();
+      closeLayer("feedbackDrawer");
+      showToast("已更新提供给 AI 的授课反馈");
+    });
+    document.getElementById("filterFeedbackBtn").addEventListener("click", renderFeedbackCards);
+    document.getElementById("resetFeedbackFilter").addEventListener("click", () => {
+      document.getElementById("feedbackStartDate").value = "2025-07-01";
+      document.getElementById("feedbackEndDate").value = "2025-10-31";
+      renderFeedbackCards();
+    });
+    document.getElementById("selectAllFeedback").addEventListener("click", () => setVisibleFeedbackSelection(true));
+    document.getElementById("clearAllFeedback").addEventListener("click", () => setVisibleFeedbackSelection(false));
+    document.getElementById("closeHomeworkDrawer").addEventListener("click", () => closeLayer("homeworkDrawer"));
+    document.getElementById("homeworkDrawerCloseBtn").addEventListener("click", () => closeLayer("homeworkDrawer"));
+    document.getElementById("confirmHomeworkSelection").addEventListener("click", () => {
+      updateHomeworkSelection();
+      closeLayer("homeworkDrawer");
+      showToast("已更新提供给 AI 的作业记录");
+    });
+    document.getElementById("filterHomeworkBtn").addEventListener("click", renderHomeworkRows);
+    document.getElementById("resetHomeworkFilter").addEventListener("click", () => {
+      document.getElementById("homeworkStartDate").value = "2025-07-01";
+      document.getElementById("homeworkEndDate").value = "2025-10-31";
+      renderHomeworkRows();
+    });
+    document.getElementById("selectAllHomework").addEventListener("click", () => setVisibleHomeworkSelection(true));
+    document.getElementById("clearAllHomework").addEventListener("click", () => setVisibleHomeworkSelection(false));
+    document.getElementById("feedbackCards").addEventListener("change", (event) => {
+      if (!event.target.classList.contains("feedback-ai-check")) return;
+      const item = feedbacks.find((entry) => entry.id === event.target.dataset.id);
+      if (item) item.selected = event.target.checked;
+      updateFeedbackSelection();
+    });
+    document.getElementById("homeworkRows").addEventListener("change", (event) => {
+      if (!event.target.classList.contains("homework-ai-check")) return;
+      const item = homeworks.find((entry) => entry.id === event.target.dataset.id);
+      if (item) item.selected = event.target.checked;
+      updateHomeworkSelection();
+    });
+    document.getElementById("homeworkRows").addEventListener("click", (event) => {
+      const button = event.target.closest(".knowledge-toggle");
+      if (button) toggleKnowledgeDetail(button);
+    });
+    document.querySelectorAll(".generation-scope").forEach((item) => item.addEventListener("change", () => setScopeStatuses("pending")));
+    document.getElementById("generationModal").addEventListener("click", (event) => {
+      if (event.target.id === "generationModal") closeLayer("generationModal");
+    });
+    document.getElementById("feedbackDrawer").addEventListener("click", (event) => {
+      if (event.target.id === "feedbackDrawer") closeLayer("feedbackDrawer");
+    });
+    document.getElementById("homeworkDrawer").addEventListener("click", (event) => {
+      if (event.target.id === "homeworkDrawer") closeLayer("homeworkDrawer");
+    });
+    document.getElementById("toggleAssistant").addEventListener("click", () => {
+      const assistant = document.getElementById("aiAssistant");
+      const toggle = document.getElementById("toggleAssistant");
+      const collapsed = assistant.classList.toggle("collapsed");
+      toggle.textContent = collapsed ? "⌃" : "⌄";
+      toggle.setAttribute("aria-label", collapsed ? "展开 AI 报告助手" : "收起 AI 报告助手");
+    });
+    document.getElementById("submitReport").addEventListener("click", () => showToast("模考报告已提交"));
+  </script>
+</body>
+</html>
