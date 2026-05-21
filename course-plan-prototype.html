@@ -1,0 +1,1289 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>添加授课反馈 - 产品原型</title>
+  <style>
+    :root {
+      --page: #f3f5f8;
+      --panel: #ffffff;
+      --ink: #263244;
+      --muted: #6a7586;
+      --weak: #a9b3c2;
+      --line: #e4e9f1;
+      --line-strong: #d5dde9;
+      --field: #ffffff;
+      --brand: #2f74f6;
+      --brand-deep: #245fce;
+      --danger: #f05d5d;
+      --danger-soft: #fff7f7;
+      --shadow: 0 16px 36px rgba(35, 48, 70, 0.12);
+      font-family: "Avenir Next", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-width: 1180px;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, rgba(218, 224, 234, 0.96), rgba(243, 245, 248, 0.98) 118px),
+        var(--page);
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .prototype {
+      width: calc(100vw - 28px);
+      min-height: calc(100vh - 28px);
+      margin: 14px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .titlebar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      height: 46px;
+      padding: 0 18px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(12px);
+    }
+
+    .page-title {
+      margin: 0;
+      color: #101828;
+      font-size: 15px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .form-scroll {
+      height: calc(100vh - 122px);
+      overflow: auto;
+      padding: 18px 20px 30px;
+    }
+
+    .section {
+      margin-bottom: 24px;
+    }
+
+    .section-title {
+      margin: 0 0 18px;
+      color: #424d61;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .basic-grid,
+    .two-grid {
+      display: grid;
+      gap: 14px 84px;
+    }
+
+    .basic-grid {
+      grid-template-columns: 1fr 1fr 1fr;
+      max-width: 1240px;
+    }
+
+    .two-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .info-line,
+    .input-line {
+      display: flex;
+      align-items: center;
+      min-height: 32px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .info-line label,
+    .input-line label {
+      min-width: 88px;
+      color: #5f6877;
+    }
+
+    .info-line strong {
+      color: #3e4858;
+      font-weight: 600;
+    }
+
+    .input-line input {
+      width: min(520px, 100%);
+      height: 32px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      color: #2e394b;
+      background: var(--field);
+      outline: none;
+      transition: border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
+    }
+
+    .field {
+      margin-bottom: 20px;
+    }
+
+    .field-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 26px;
+      margin-bottom: 6px;
+      color: #4a5568;
+      font-size: 13px;
+    }
+
+    .field-title {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 700;
+    }
+
+    .required {
+      color: var(--danger);
+      font-weight: 800;
+    }
+
+    .optional {
+      color: #9aa5b5;
+      font-weight: 500;
+    }
+
+    textarea {
+      display: block;
+      width: 100%;
+      min-height: 86px;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      color: #2e394b;
+      background: #fff;
+      resize: vertical;
+      outline: none;
+      line-height: 1.65;
+      font-size: 13px;
+      transition: border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: #bdc5d0;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: #a9c8ff;
+      box-shadow: 0 0 0 3px rgba(47, 116, 246, 0.08);
+    }
+
+    .field.error textarea,
+    .input-line.error input,
+    .plan-table .error input {
+      border-color: #ff9999;
+      background: var(--danger-soft);
+    }
+
+    .field-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 19px;
+      margin-top: 3px;
+      color: var(--weak);
+      font-size: 12px;
+    }
+
+    .error-text {
+      visibility: hidden;
+      color: var(--danger);
+    }
+
+    .error .error-text {
+      visibility: visible;
+    }
+
+    .plan-wrap {
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .plan-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 13px;
+    }
+
+    .plan-table th,
+    .plan-table td {
+      border-bottom: 1px solid var(--line);
+      border-right: 1px solid var(--line);
+      padding: 8px;
+      vertical-align: top;
+    }
+
+    .plan-table th:last-child,
+    .plan-table td:last-child {
+      border-right: 0;
+    }
+
+    .plan-table th {
+      height: 38px;
+      color: #4a5568;
+      background: #f8fafc;
+      font-weight: 800;
+      text-align: left;
+    }
+
+    .plan-table td {
+      background: #fff;
+    }
+
+    .plan-table input {
+      width: 100%;
+      height: 34px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      color: #2e394b;
+      outline: none;
+      transition: border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
+    }
+
+    .lesson-col {
+      width: 15%;
+    }
+
+    .time-col {
+      width: 24%;
+    }
+
+    .action-col {
+      width: 90px;
+    }
+
+    .table-tools {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 48px;
+      padding: 8px 10px;
+      color: var(--weak);
+      font-size: 12px;
+      background: #fff;
+    }
+
+    .add-row,
+    .remove-row {
+      height: 30px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .add-row {
+      padding: 0 12px;
+      color: var(--brand);
+      border: 1px solid #c8dcff;
+      background: #f5f9ff;
+    }
+
+    .remove-row {
+      width: 54px;
+      color: #6c7788;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .remove-row:disabled {
+      color: #c0c8d4;
+      cursor: not-allowed;
+      background: #f8fafc;
+    }
+
+    .footer {
+      position: sticky;
+      bottom: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      height: 62px;
+      padding: 0 18px;
+      border-top: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(12px);
+    }
+
+    .footer-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .plain-btn,
+    .primary-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 64px;
+      height: 34px;
+      padding: 0 16px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .plain-btn {
+      color: #526075;
+      border: 1px solid var(--line-strong);
+      background: #fff;
+    }
+
+    .primary-btn {
+      color: #fff;
+      background: var(--brand);
+      box-shadow: 0 8px 18px rgba(47, 116, 246, 0.24);
+    }
+
+    .toast {
+      position: fixed;
+      top: 62px;
+      right: 30px;
+      z-index: 30;
+      display: none;
+      min-width: 220px;
+      padding: 10px 14px;
+      border: 1px solid #bce8d5;
+      border-radius: 6px;
+      color: #13704f;
+      background: #f1fbf6;
+      box-shadow: 0 14px 28px rgba(35, 48, 70, 0.12);
+      font-size: 13px;
+    }
+
+    .toast.show {
+      display: block;
+      animation: drop 220ms ease both;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .pre-page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      background: #f5f6f8;
+      color: #252b36;
+    }
+
+    .pre-side {
+      background: #20355f;
+      color: rgba(255, 255, 255, 0.66);
+      padding-top: 22px;
+    }
+
+    .pre-logo {
+      padding: 0 18px 34px;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 900;
+      line-height: 1.25;
+    }
+
+    .pre-menu div {
+      height: 64px;
+      padding: 20px;
+      font-size: 18px;
+    }
+
+    .pre-menu .active {
+      color: #fff;
+      background: #2f74f6;
+      font-weight: 800;
+    }
+
+    .pre-menu .sub {
+      padding-left: 56px;
+      background: #132246;
+    }
+
+    .pre-main {
+      min-width: 0;
+    }
+
+    .pre-top {
+      height: 62px;
+      padding: 16px 28px;
+      border-bottom: 1px solid #e6e9ef;
+      background: #fff;
+      font-size: 22px;
+    }
+
+    .pre-content {
+      padding: 26px;
+    }
+
+    .pre-card {
+      margin: 24px 0 30px;
+      padding: 26px;
+      border-radius: 4px;
+      background: #fff;
+      box-shadow: 0 2px 10px rgba(27, 39, 60, 0.05);
+    }
+
+    .todo-row {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(190px, 1fr));
+      gap: 12px;
+      overflow: hidden;
+    }
+
+    .todo-card {
+      position: relative;
+      min-height: 148px;
+      padding: 22px;
+      border: 1px solid #edf0f5;
+      border-radius: 6px;
+      background: #fff;
+      box-shadow: 0 4px 12px rgba(43, 63, 96, 0.08);
+      text-align: left;
+    }
+
+    .todo-card strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 18px;
+    }
+
+    .todo-card span {
+      color: #8893a3;
+      font-size: 13px;
+    }
+
+    .todo-card b {
+      display: block;
+      margin-top: 26px;
+      font-size: 34px;
+    }
+
+    .pre-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      font-size: 16px;
+    }
+
+    .pre-table th,
+    .pre-table td {
+      height: 50px;
+      border: 1px solid #edf0f5;
+      text-align: center;
+    }
+
+    .link-btn {
+      position: relative;
+      color: #2f74f6;
+      background: transparent;
+      font-size: 16px;
+    }
+
+    .hot-dot {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ff3b30;
+      box-shadow: 0 0 0 4px rgba(255, 59, 48, 0.16);
+      pointer-events: none;
+    }
+
+    .view-page {
+      min-height: 100vh;
+      color: #333b48;
+      background: #f5f5f5;
+    }
+
+    .view-header {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      height: 84px;
+      padding: 0 34px;
+      border-top: 1px solid #d8d8d8;
+      border-bottom: 1px solid #e5e5e5;
+      background: #fff;
+    }
+
+    .view-close {
+      display: grid;
+      place-items: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 4px;
+      color: #fff;
+      background: #4b7ee8;
+      font-size: 34px;
+      line-height: 1;
+      font-weight: 300;
+    }
+
+    .view-header h1 {
+      margin: 0;
+      color: #272f3a;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .view-scroll {
+      min-height: calc(100vh - 84px);
+      padding: 16px 18px 72px;
+    }
+
+    .view-card {
+      position: relative;
+      min-height: calc(100vh - 172px);
+      overflow: hidden;
+      padding: 50px 42px 62px;
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    .view-card::after {
+      content: "A";
+      position: absolute;
+      right: 62px;
+      top: -18px;
+      width: 280px;
+      height: 280px;
+      display: grid;
+      place-items: center;
+      border: 18px solid rgba(50, 116, 223, 0.05);
+      border-radius: 50%;
+      color: rgba(50, 116, 223, 0.05);
+      font-size: 170px;
+      font-weight: 900;
+      pointer-events: none;
+    }
+
+    .view-section {
+      position: relative;
+      z-index: 1;
+      margin-bottom: 48px;
+    }
+
+    .ribbon {
+      display: inline-flex;
+      align-items: center;
+      height: 56px;
+      margin-bottom: 28px;
+      padding: 0 28px;
+      border-radius: 5px;
+      color: #fff;
+      background: linear-gradient(180deg, #68b4ff 0%, #2369fb 55%, #1f45dc 100%);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 8px 16px rgba(35, 86, 212, 0.2);
+      transform: skewX(-5deg);
+    }
+
+    .ribbon span {
+      display: block;
+      transform: skewX(5deg);
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: 4px;
+      text-shadow: 0 2px 0 rgba(0, 42, 162, 0.24);
+    }
+
+    .view-list {
+      display: grid;
+      gap: 28px;
+      max-width: 1080px;
+    }
+
+    .view-row {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: 28px;
+      align-items: start;
+      color: #40464f;
+      font-size: 22px;
+      line-height: 1.65;
+    }
+
+    .view-label {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: #123c70;
+      font-size: 24px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .view-label::before {
+      content: "▣";
+      color: #153f73;
+      font-size: 18px;
+    }
+
+    .view-value {
+      min-height: 36px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .empty-value {
+      color: #a4aab4;
+    }
+
+    .view-plan {
+      width: 100%;
+      max-width: 1080px;
+      border-collapse: collapse;
+      color: #40464f;
+      font-size: 20px;
+      line-height: 1.55;
+    }
+
+    .view-plan th,
+    .view-plan td {
+      padding: 14px 16px;
+      border: 1px solid #e7edf6;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .view-plan th {
+      color: #123c70;
+      background: #f6f9ff;
+      font-weight: 900;
+    }
+
+    .view-footer {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      justify-content: flex-end;
+      padding: 14px 10px;
+      border-top: 1px solid #e5e5e5;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(12px);
+    }
+
+    .view-footer .plain-btn {
+      height: 42px;
+      min-width: 90px;
+      font-size: 18px;
+    }
+
+    @keyframes drop {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 900px) {
+      body {
+        min-width: 0;
+      }
+
+      .prototype {
+        width: 100vw;
+        min-height: 100vh;
+        margin: 0;
+        border: 0;
+        border-radius: 0;
+      }
+
+      .titlebar {
+        height: auto;
+        min-height: 56px;
+        flex-wrap: wrap;
+        padding: 10px 14px;
+      }
+
+      .form-scroll {
+        height: calc(100vh - 150px);
+        padding: 16px 14px 26px;
+      }
+
+      .basic-grid,
+      .two-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .input-line {
+        display: block;
+      }
+
+      .input-line label {
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .input-line input {
+        width: 100%;
+      }
+
+      .view-header {
+        height: 72px;
+        padding: 0 16px;
+        gap: 16px;
+      }
+
+      .view-header h1 {
+        font-size: 22px;
+      }
+
+      .view-card {
+        padding: 30px 18px 80px;
+      }
+
+      .ribbon {
+        height: 46px;
+        padding: 0 22px;
+      }
+
+      .ribbon span {
+        font-size: 22px;
+      }
+
+      .view-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        font-size: 17px;
+      }
+
+      .view-label {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <section class="pre-page" id="stepHome" aria-label="教学工作台">
+    <aside class="pre-side">
+      <div class="pre-logo">VISION ACADEMY<br><small>唯寻国际教育</small></div>
+      <nav class="pre-menu">
+        <div class="active">课堂</div><div>班级</div><div>学员</div><div>作业 13</div><div>模考 29</div>
+        <div>反馈</div><div class="sub">授课反馈</div><div class="sub">营地反馈</div>
+      </nav>
+    </aside>
+    <main class="pre-main">
+      <header class="pre-top">↻　教学工作台</header>
+      <div class="pre-content">
+        <h2>课堂</h2>
+        <section class="pre-card">
+          <h3>待办</h3>
+          <div class="todo-row">
+            <button class="todo-card" type="button" id="goList"><span class="hot-dot"></span><strong>授课反馈</strong><span>待提交反馈数</span><b>262</b></button>
+            <div class="todo-card"><strong>作业</strong><span>待批改作业份数</span><b>13</b></div>
+            <div class="todo-card"><strong>模考</strong><span>待布置、待批改的模考数</span><b>9</b></div>
+            <div class="todo-card"><strong>模考报告</strong><span>待提交、待沟通的报告数</span><b>20</b></div>
+            <div class="todo-card"><strong>课程规划</strong><span>待提交课程规划数</span><b>1</b></div>
+            <div class="todo-card"><strong>待采分学员</strong><span>需要采分的学员</span><b>0</b></div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </section>
+
+  <section class="pre-page hidden" id="stepList" aria-label="授课反馈列表">
+    <aside class="pre-side">
+      <div class="pre-logo">VISION ACADEMY<br><small>唯寻国际教育</small></div>
+      <nav class="pre-menu">
+        <div class="active">课堂</div><div>班级</div><div>学员</div><div>作业 13</div><div>模考 29</div>
+        <div>反馈</div><div class="sub">授课反馈</div><div class="sub">营地反馈</div>
+      </nav>
+    </aside>
+    <main class="pre-main">
+      <header class="pre-top">↻　教学工作台</header>
+      <div class="pre-content">
+        <h2>‹ 返回　授课反馈</h2>
+        <section class="pre-card">
+          <h3 style="color:#2f74f6">待提交反馈　　　已提交反馈　　　已删除反馈</h3>
+          <table class="pre-table">
+            <thead><tr><th>上课日期</th><th>上课时间</th><th>课程名称</th><th>班级名称</th><th>学生姓名</th><th>等待时间</th><th>操作</th></tr></thead>
+            <tbody>
+              <tr><td>2026-05-21</td><td>10:15 ~ 10:30</td><td>英国大学课程-课前沟通-线上</td><td>采分测试6-英研课程...</td><td>采分测试6</td><td>3.27h</td><td><button class="link-btn" id="goForm" type="button">添加<span class="hot-dot"></span></button>　删除</td></tr>
+              <tr><td>2026-05-02</td><td>13:30 ~ 15:30</td><td>雅思-听力-线上</td><td>采分测试6-英联邦语培...</td><td>采分测试6</td><td>454.27h</td><td>添加　删除</td></tr>
+              <tr><td>2026-05-01</td><td>13:30 ~ 15:30</td><td>雅思-听力-线上</td><td>采分测试6-英联邦语培...</td><td>采分测试6</td><td>478.27h</td><td>添加　删除</td></tr>
+            </tbody>
+          </table>
+        </section>
+      </div>
+    </main>
+  </section>
+
+  <main class="prototype hidden" id="formPage" aria-label="授课反馈添加页">
+    <header class="titlebar">
+      <h1 class="page-title">添加授课反馈</h1>
+    </header>
+
+    <section class="form-scroll">
+      <section class="section" aria-labelledby="basic-title">
+        <h2 class="section-title" id="basic-title">基本信息</h2>
+        <div class="basic-grid">
+          <div class="info-line">
+            <label>学生姓名：</label>
+            <strong>采分测试6</strong>
+          </div>
+          <div class="info-line">
+            <label>在读学校：</label>
+            <strong>自动匹配学校</strong>
+          </div>
+          <div class="input-line required-input" data-required="true">
+            <label for="courseName"><span class="required">*</span>课程名称：</label>
+            <input id="courseName" maxlength="80" placeholder="请输入正课的课号名称">
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="goal-title">
+        <h2 class="section-title" id="goal-title">学情&目标</h2>
+        <div class="two-grid">
+          <div class="field">
+            <div class="field-head">
+              <div class="field-title">当前水平/分数 <span class="optional">选填</span></div>
+            </div>
+            <textarea maxlength="500" placeholder="例如：雅思 6.0；阅读较强，口语 Part 2 展开不足"></textarea>
+            <div class="field-meta"><span></span><span class="count">0/500</span></div>
+          </div>
+          <div class="field">
+            <div class="field-head">
+              <div class="field-title">目标分数/成果 <span class="optional">选填</span></div>
+            </div>
+            <textarea maxlength="500" placeholder="例如：8 周内达到雅思 7.0；完成课程论文初稿"></textarea>
+            <div class="field-meta"><span></span><span class="count">0/500</span></div>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-head">
+            <div class="field-title">关键 DDL <span class="optional">选填</span></div>
+          </div>
+          <textarea maxlength="500" placeholder="请输入重要考试、申请、论文、作业或提交时间节点"></textarea>
+          <div class="field-meta"><span></span><span class="count">0/500</span></div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="diagnosis-title">
+        <h2 class="section-title" id="diagnosis-title">初步诊断与计划</h2>
+        <div class="two-grid">
+          <div class="field required-field" data-required="true">
+            <div class="field-head">
+              <div class="field-title"><span class="required">*</span>预计主要辅导重点</div>
+            </div>
+            <textarea maxlength="1000" placeholder="请输入预计主要辅导重点，例如：薄弱模块、知识缺口、训练方式"></textarea>
+            <div class="field-meta"><span class="error-text">预计主要辅导重点不能为空</span><span class="count">0/1000</span></div>
+          </div>
+          <div class="field required-field" data-required="true">
+            <div class="field-head">
+              <div class="field-title"><span class="required">*</span>预估总课时数</div>
+            </div>
+            <textarea maxlength="300" placeholder="请输入预估总课时数，例如：预计 12 次课，共 24 小时"></textarea>
+            <div class="field-meta"><span class="error-text">预估总课时数不能为空</span><span class="count">0/300</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="notice-title">
+        <h2 class="section-title" id="notice-title">重要事项知晓 / 影响预期目标的因素</h2>
+        <div class="field">
+          <textarea maxlength="1000" placeholder="例如：学生可用学习时间、请假安排、基础薄弱风险、考试时间较近等"></textarea>
+          <div class="field-meta"><span></span><span class="count">0/1000</span></div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="materials-title">
+        <h2 class="section-title" id="materials-title">所需材料清单</h2>
+        <div class="two-grid">
+          <div class="field">
+            <div class="field-head">
+              <div class="field-title">学生已提供 <span class="optional">选填</span></div>
+            </div>
+            <textarea maxlength="800" placeholder="例如：成绩单、错题记录、教材目录、论文要求等"></textarea>
+            <div class="field-meta"><span></span><span class="count">0/800</span></div>
+          </div>
+          <div class="field">
+            <div class="field-head">
+              <div class="field-title">待补充建议准备 <span class="optional">选填</span></div>
+            </div>
+            <textarea maxlength="800" placeholder="例如：近两次模考报告、学校 rubric、课程 syllabus 等"></textarea>
+            <div class="field-meta"><span></span><span class="count">0/800</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="teaching-title">
+        <h2 class="section-title" id="teaching-title">教学计划</h2>
+        <div class="field-head">
+          <div class="field-title"><span class="required">*</span>课节计划表 <span class="optional">至少填写两节，可手动拓展行</span></div>
+        </div>
+        <div class="plan-wrap">
+          <table class="plan-table" aria-label="教学计划表格">
+            <thead>
+              <tr>
+                <th class="lesson-col">课节</th>
+                <th class="time-col">上课时间</th>
+                <th>核心教学目标</th>
+                <th class="action-col">操作</th>
+              </tr>
+            </thead>
+            <tbody id="planBody">
+              <tr data-required-row="true">
+                <td><input value="课节 1" aria-label="课节 1"></td>
+                <td><input placeholder="请选择或填写上课时间" aria-label="课节 1 上课时间"></td>
+                <td><input placeholder="请输入核心教学目标" aria-label="课节 1 核心教学目标"></td>
+                <td><button class="remove-row" type="button" disabled>删除</button></td>
+              </tr>
+              <tr data-required-row="true">
+                <td><input value="课节 2" aria-label="课节 2"></td>
+                <td><input placeholder="请选择或填写上课时间" aria-label="课节 2 上课时间"></td>
+                <td><input placeholder="请输入核心教学目标" aria-label="课节 2 核心教学目标"></td>
+                <td><button class="remove-row" type="button" disabled>删除</button></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="table-tools">
+            <span class="error-text" id="planError">课节 1 和课节 2 的上课时间、核心教学目标不能为空</span>
+            <button class="add-row" type="button" id="addPlanRow">+ 添加课节</button>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <footer class="footer">
+      <div class="footer-actions">
+        <button class="plain-btn" type="button">取消</button>
+        <button class="primary-btn" type="button" id="submitBtn">提交</button>
+      </div>
+    </footer>
+  </main>
+
+  <section class="view-page hidden" id="viewPage" aria-label="授课反馈查看页">
+    <header class="view-header">
+      <button class="view-close" type="button" data-back-to-form aria-label="关闭">×</button>
+      <h1>授课反馈</h1>
+    </header>
+
+    <main class="view-scroll">
+      <article class="view-card">
+        <section class="view-section" aria-labelledby="view-basic-title">
+          <h2 class="ribbon" id="view-basic-title"><span>基础信息</span></h2>
+          <div class="view-list">
+            <div class="view-row">
+              <div class="view-label">学生姓名</div>
+              <div class="view-value" data-view="student">采分测试6</div>
+            </div>
+            <div class="view-row">
+              <div class="view-label">在读学校</div>
+              <div class="view-value" data-view="school">自动匹配学校</div>
+            </div>
+            <div class="view-row">
+              <div class="view-label">课程名称</div>
+              <div class="view-value" data-view="courseName"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view-section" aria-labelledby="view-goal-title">
+          <h2 class="ribbon" id="view-goal-title"><span>学情&目标</span></h2>
+          <div class="view-list">
+            <div class="view-row">
+              <div class="view-label">当前水平/分数</div>
+              <div class="view-value" data-view="currentLevel"></div>
+            </div>
+            <div class="view-row">
+              <div class="view-label">目标分数/成果</div>
+              <div class="view-value" data-view="targetResult"></div>
+            </div>
+            <div class="view-row">
+              <div class="view-label">关键 DDL</div>
+              <div class="view-value" data-view="ddl"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view-section" aria-labelledby="view-plan-title">
+          <h2 class="ribbon" id="view-plan-title"><span>初步诊断与计划</span></h2>
+          <div class="view-list">
+            <div class="view-row">
+              <div class="view-label">主要辅导重点</div>
+              <div class="view-value" data-view="focus"></div>
+            </div>
+            <div class="view-row">
+              <div class="view-label">预估总课时数</div>
+              <div class="view-value" data-view="hours"></div>
+            </div>
+            <div class="view-row">
+              <div class="view-label">影响目标因素</div>
+              <div class="view-value" data-view="notice"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view-section" aria-labelledby="view-materials-title">
+          <h2 class="ribbon" id="view-materials-title"><span>材料清单</span></h2>
+          <div class="view-list">
+            <div class="view-row">
+              <div class="view-label">学生已提供</div>
+              <div class="view-value" data-view="provided"></div>
+            </div>
+            <div class="view-row">
+              <div class="view-label">待补充准备</div>
+              <div class="view-value" data-view="prepare"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view-section" aria-labelledby="view-teaching-title">
+          <h2 class="ribbon" id="view-teaching-title"><span>教学计划</span></h2>
+          <table class="view-plan" aria-label="教学计划查看表">
+            <thead>
+              <tr>
+                <th>课节</th>
+                <th>上课时间</th>
+                <th>核心教学目标</th>
+              </tr>
+            </thead>
+            <tbody id="viewPlanBody"></tbody>
+          </table>
+        </section>
+      </article>
+    </main>
+
+    <footer class="view-footer">
+      <button class="plain-btn" type="button" data-back-to-form>关闭</button>
+    </footer>
+  </section>
+
+  <div class="toast" id="toast">校验通过，课程规划已准备提交</div>
+
+  <script>
+    const formPage = document.querySelector("#formPage");
+    const viewPage = document.querySelector("#viewPage");
+    const stepHome = document.querySelector("#stepHome");
+    const stepList = document.querySelector("#stepList");
+    const fields = Array.from(document.querySelectorAll(".field"));
+    const textareas = Array.from(document.querySelectorAll("textarea"));
+    const requiredFields = Array.from(document.querySelectorAll(".required-field"));
+    const requiredInputs = Array.from(document.querySelectorAll(".required-input"));
+    const courseName = document.querySelector("#courseName");
+    const planBody = document.querySelector("#planBody");
+    const planError = document.querySelector("#planError");
+    const viewPlanBody = document.querySelector("#viewPlanBody");
+    const toast = document.querySelector("#toast");
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    function showOnly(page) {
+      [stepHome, stepList, formPage, viewPage].forEach((item) => item.classList.add("hidden"));
+      page.classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "auto" });
+    }
+
+    function updateCounter(textarea) {
+      const field = textarea.closest(".field");
+      const count = field && field.querySelector(".count");
+      if (count) {
+        count.textContent = `${textarea.value.length}/${textarea.maxLength}`;
+      }
+    }
+
+    function validateRequiredField(field) {
+      const textarea = field.querySelector("textarea");
+      const invalid = textarea.value.trim().length === 0;
+      field.classList.toggle("error", invalid);
+      return !invalid;
+    }
+
+    function validateRequiredInput(line) {
+      const input = line.querySelector("input");
+      const invalid = input.value.trim().length === 0;
+      line.classList.toggle("error", invalid);
+      return !invalid;
+    }
+
+    function validatePlan() {
+      const rows = Array.from(planBody.querySelectorAll("tr")).slice(0, 2);
+      let valid = true;
+      rows.forEach((row) => {
+        const inputs = Array.from(row.querySelectorAll("input")).slice(1, 3);
+        inputs.forEach((input) => {
+          const cell = input.closest("td");
+          const invalid = input.value.trim().length === 0;
+          cell.classList.toggle("error", invalid);
+          valid = valid && !invalid;
+        });
+      });
+      planError.style.visibility = valid ? "hidden" : "visible";
+      return valid;
+    }
+
+    function renumberRows() {
+      Array.from(planBody.querySelectorAll("tr")).forEach((row, index) => {
+        const lessonInput = row.querySelector("td:first-child input");
+        if (!lessonInput.value.trim() || /^课节\s*\d+$/.test(lessonInput.value.trim())) {
+          lessonInput.value = `课节 ${index + 1}`;
+        }
+      });
+    }
+
+    function createPlanRow(values = []) {
+      const index = planBody.querySelectorAll("tr").length + 1;
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td><input value="${values[0] || `课节 ${index}`}" aria-label="课节 ${index}"></td>
+        <td><input value="${values[1] || ""}" placeholder="请选择或填写上课时间" aria-label="课节 ${index} 上课时间"></td>
+        <td><input value="${values[2] || ""}" placeholder="请输入核心教学目标" aria-label="课节 ${index} 核心教学目标"></td>
+        <td><button class="remove-row" type="button">删除</button></td>
+      `;
+      row.querySelector(".remove-row").addEventListener("click", () => {
+        row.remove();
+        renumberRows();
+        validatePlan();
+      });
+      Array.from(row.querySelectorAll("input")).forEach((input) => {
+        input.addEventListener("input", validatePlan);
+      });
+      return row;
+    }
+
+    function setViewValue(key, value) {
+      const target = document.querySelector(`[data-view="${key}"]`);
+      const normalized = String(value || "").trim();
+      target.textContent = normalized || "暂无";
+      target.classList.toggle("empty-value", !normalized);
+    }
+
+    function getPlanRows() {
+      return Array.from(planBody.querySelectorAll("tr"))
+        .map((row) => Array.from(row.querySelectorAll("input")).map((input) => input.value.trim()))
+        .filter((cells) => cells.some(Boolean));
+    }
+
+    function renderViewPage() {
+      setViewValue("student", "采分测试6");
+      setViewValue("school", "自动匹配学校");
+      setViewValue("courseName", courseName.value);
+      setViewValue("currentLevel", textareas[0].value);
+      setViewValue("targetResult", textareas[1].value);
+      setViewValue("ddl", textareas[2].value);
+      setViewValue("focus", textareas[3].value);
+      setViewValue("hours", textareas[4].value);
+      setViewValue("notice", textareas[5].value);
+      setViewValue("provided", textareas[6].value);
+      setViewValue("prepare", textareas[7].value);
+
+      viewPlanBody.innerHTML = "";
+      getPlanRows().forEach((cells) => {
+        const row = document.createElement("tr");
+        cells.slice(0, 3).forEach((value) => {
+          const cell = document.createElement("td");
+          cell.textContent = value || "暂无";
+          row.appendChild(cell);
+        });
+        viewPlanBody.appendChild(row);
+      });
+
+      showOnly(viewPage);
+    }
+
+    textareas.forEach((textarea) => {
+      textarea.addEventListener("input", () => {
+        updateCounter(textarea);
+        const requiredField = textarea.closest(".required-field");
+        if (requiredField && requiredField.classList.contains("error")) {
+          validateRequiredField(requiredField);
+        }
+      });
+      updateCounter(textarea);
+    });
+
+    requiredInputs.forEach((line) => {
+      const input = line.querySelector("input");
+      input.addEventListener("input", () => validateRequiredInput(line));
+    });
+
+    Array.from(planBody.querySelectorAll("input")).forEach((input) => {
+      input.addEventListener("input", validatePlan);
+    });
+
+    document.querySelector("#addPlanRow").addEventListener("click", () => {
+      planBody.appendChild(createPlanRow());
+    });
+
+    document.querySelector("#goList").addEventListener("click", () => showOnly(stepList));
+    document.querySelector("#goForm").addEventListener("click", () => showOnly(formPage));
+
+    document.querySelector("#submitBtn").addEventListener("click", () => {
+      const inputValid = requiredInputs.map(validateRequiredInput).every(Boolean);
+      const fieldValid = requiredFields.map(validateRequiredField).every(Boolean);
+      const planValid = validatePlan();
+      if (!inputValid || !fieldValid || !planValid) {
+        const firstInvalid = document.querySelector(".error input, .error textarea");
+        if (firstInvalid) {
+          firstInvalid.focus();
+        }
+        showToast("请先填写必填字段");
+        return;
+      }
+      showToast("校验通过，课程规划已准备提交");
+      renderViewPage();
+    });
+
+    document.querySelectorAll("[data-back-to-form]").forEach((button) => {
+      button.addEventListener("click", () => {
+        viewPage.classList.add("hidden");
+        showOnly(formPage);
+      });
+    });
+  </script>
+</body>
+</html>
