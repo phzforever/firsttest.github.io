@@ -1,0 +1,1109 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>添加反馈 - 课程反馈原型</title>
+  <style>
+    :root {
+      --page: #f3f5f8;
+      --panel: #ffffff;
+      --ink: #243044;
+      --muted: #6f7b8d;
+      --weak: #aeb8c6;
+      --line: #e5eaf1;
+      --line-strong: #d7dee9;
+      --field: #ffffff;
+      --brand: #2f74f6;
+      --brand-2: #7a31f4;
+      --danger: #f05d5d;
+      --danger-soft: #fff6f6;
+      --ok: #1e9b72;
+      --ai-soft: #eef9ff;
+      --shadow: 0 16px 36px rgba(35, 48, 70, 0.12);
+      font-family: "Avenir Next", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-width: 1180px;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, rgba(215, 222, 233, 0.92), rgba(243, 245, 248, 0.96) 110px),
+        var(--page);
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      border: 0;
+    }
+
+    .mock-app {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      min-height: 100vh;
+      background: #f6f7f9;
+      color: #202733;
+    }
+
+    .mock-side {
+      background: #1f315c;
+      color: rgba(255,255,255,.72);
+      padding: 22px 0;
+    }
+
+    .mock-logo {
+      padding: 0 18px 30px;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+
+    .mock-menu {
+      display: grid;
+      gap: 2px;
+    }
+
+    .mock-menu div,
+    .mock-menu button {
+      height: 52px;
+      padding: 0 20px;
+      text-align: left;
+      color: inherit;
+      background: transparent;
+      font-size: 16px;
+    }
+
+    .mock-menu .active {
+      color: #fff;
+      background: #2f7df6;
+      font-weight: 800;
+    }
+
+    .mock-menu .sub {
+      padding-left: 56px;
+      background: #132246;
+    }
+
+    .mock-main {
+      min-width: 0;
+    }
+
+    .mock-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 62px;
+      padding: 0 28px;
+      border-bottom: 1px solid #e7eaf0;
+      background: #fff;
+      font-size: 20px;
+    }
+
+    .mock-content {
+      padding: 26px;
+    }
+
+    .mock-card {
+      padding: 26px 24px;
+      border-radius: 4px;
+      background: #fff;
+      box-shadow: 0 2px 10px rgba(27, 39, 60, .05);
+    }
+
+    .todo-row {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(190px, 1fr));
+      gap: 12px;
+      overflow: hidden;
+      padding: 20px 0;
+    }
+
+    .todo-card {
+      min-height: 120px;
+      padding: 20px;
+      border: 1px solid #edf0f5;
+      border-radius: 6px;
+      background: #fff;
+      box-shadow: 0 4px 12px rgba(43, 63, 96, .08);
+      text-align: left;
+    }
+
+    .todo-card strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 18px;
+    }
+
+    .todo-card span {
+      color: #9aa4b2;
+      font-size: 13px;
+    }
+
+    .todo-card b {
+      display: block;
+      margin-top: 22px;
+      font-size: 36px;
+    }
+
+    .calendar-ghost {
+      height: 420px;
+      margin-top: 28px;
+      border: 1px solid #e7eaf0;
+      background: repeating-linear-gradient(90deg, #fff 0 14.2%, #eef1fb 14.2% 14.3%);
+    }
+
+    .mock-back {
+      margin-bottom: 24px;
+      color: #2f7df6;
+      font-size: 16px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 44px;
+      padding: 0 0 14px;
+      border-bottom: 2px solid #e1e5ec;
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .tabs span:first-child {
+      color: #2f7df6;
+      border-bottom: 3px solid #2f7df6;
+      padding-bottom: 14px;
+      margin-bottom: -16px;
+    }
+
+    .filters {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      margin: 42px 0 22px;
+    }
+
+    .fake-input {
+      width: 220px;
+      height: 38px;
+      border: 1px solid #e2e7ef;
+      border-radius: 4px;
+      background: #fff;
+    }
+
+    .blue-btn {
+      height: 40px;
+      min-width: 72px;
+      border-radius: 4px;
+      color: #fff;
+      background: #2f7df6;
+      font-weight: 800;
+    }
+
+    .mock-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      font-size: 15px;
+    }
+
+    .mock-table th,
+    .mock-table td {
+      height: 49px;
+      border: 1px solid #edf0f5;
+      text-align: center;
+    }
+
+    .add-link {
+      color: #2f7df6;
+      background: transparent;
+      font-size: 15px;
+    }
+
+    .prototype {
+      width: calc(100vw - 28px);
+      min-height: calc(100vh - 28px);
+      margin: 14px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .titlebar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 46px;
+      padding: 0 18px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(12px);
+    }
+
+    .title-left,
+    .ai-tip,
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .page-title {
+      margin: 0;
+      color: #101828;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .ai-tip {
+      flex: 1;
+      justify-content: flex-start;
+      min-width: 0;
+      color: #2b394f;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .spark {
+      display: inline-grid;
+      place-items: center;
+      width: 28px;
+      height: 24px;
+      border-radius: 12px 12px 12px 3px;
+      color: #0c1727;
+      background: var(--ai-soft);
+      font-weight: 900;
+    }
+
+    .ai-tip em {
+      color: #2f74f6;
+      font-style: normal;
+    }
+
+    .try-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 28px;
+      padding: 0 17px;
+      border-radius: 16px;
+      color: #fff;
+      background: linear-gradient(90deg, var(--brand-2), var(--brand));
+      font-size: 13px;
+      font-weight: 800;
+      box-shadow: 0 8px 18px rgba(81, 86, 246, 0.24);
+    }
+
+    .form-scroll {
+      height: calc(100vh - 122px);
+      overflow: auto;
+      padding: 18px 20px 30px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 18px;
+      color: #424d61;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .basic-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px 84px;
+      max-width: 1240px;
+      margin-bottom: 12px;
+    }
+
+    .info-line,
+    .course-index {
+      display: flex;
+      align-items: center;
+      min-height: 28px;
+      color: #6c7788;
+      font-size: 13px;
+    }
+
+    .info-line label,
+    .course-index label {
+      min-width: 78px;
+      color: #5f6877;
+    }
+
+    .info-line strong {
+      color: #3e4858;
+      font-weight: 600;
+    }
+
+    .course-index input {
+      width: 96px;
+      height: 30px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      color: #3e4858;
+      background: var(--field);
+      outline: none;
+    }
+
+    .field {
+      margin-bottom: 20px;
+    }
+
+    .field-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 26px;
+      margin-bottom: 6px;
+      color: #4a5568;
+      font-size: 13px;
+    }
+
+    .field-title {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 700;
+    }
+
+    .required {
+      color: var(--danger);
+      font-weight: 800;
+    }
+
+    .optional {
+      color: #9aa5b5;
+      font-weight: 500;
+    }
+
+    textarea {
+      display: block;
+      width: 100%;
+      min-height: 88px;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      color: #2e394b;
+      background: #fff;
+      resize: vertical;
+      outline: none;
+      line-height: 1.65;
+      font-size: 13px;
+      transition: border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
+    }
+
+    textarea::placeholder {
+      color: #bdc5d0;
+    }
+
+    textarea:focus,
+    .course-index input:focus {
+      border-color: #a9c8ff;
+      box-shadow: 0 0 0 3px rgba(47, 116, 246, 0.08);
+    }
+
+    .field.error textarea {
+      border-color: #ff9999;
+      background: var(--danger-soft);
+    }
+
+    .field-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 19px;
+      margin-top: 3px;
+      color: var(--weak);
+      font-size: 12px;
+    }
+
+    .error-text {
+      visibility: hidden;
+      color: var(--danger);
+    }
+
+    .field.error .error-text {
+      visibility: visible;
+    }
+
+    .footer {
+      position: sticky;
+      bottom: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      height: 62px;
+      padding: 0 18px;
+      border-top: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(12px);
+    }
+
+    .footer-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .plain-btn,
+    .primary-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 64px;
+      height: 34px;
+      padding: 0 16px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .plain-btn {
+      color: #526075;
+      border: 1px solid var(--line-strong);
+      background: #fff;
+    }
+
+    .primary-btn {
+      color: #fff;
+      background: var(--brand);
+      box-shadow: 0 8px 18px rgba(47, 116, 246, 0.24);
+    }
+
+    .toast {
+      position: fixed;
+      top: 62px;
+      right: 30px;
+      z-index: 30;
+      display: none;
+      min-width: 220px;
+      padding: 10px 14px;
+      border: 1px solid #bce8d5;
+      border-radius: 6px;
+      color: #13704f;
+      background: #f1fbf6;
+      box-shadow: 0 14px 28px rgba(35, 48, 70, 0.12);
+      font-size: 13px;
+    }
+
+    .toast.show {
+      display: block;
+      animation: drop 220ms ease both;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .view-page {
+      min-height: 100vh;
+      background: #f5f5f5;
+      color: #333b48;
+    }
+
+    .view-header {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      height: 84px;
+      padding: 0 34px;
+      border-top: 1px solid #d8d8d8;
+      border-bottom: 1px solid #e5e5e5;
+      background: #fff;
+    }
+
+    .view-close {
+      display: grid;
+      place-items: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 4px;
+      color: #fff;
+      background: #4b7ee8;
+      font-size: 34px;
+      line-height: 1;
+      font-weight: 300;
+    }
+
+    .view-header h1 {
+      margin: 0;
+      color: #272f3a;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .view-scroll {
+      min-height: calc(100vh - 84px);
+      padding: 16px 18px 72px;
+    }
+
+    .view-card {
+      position: relative;
+      min-height: calc(100vh - 172px);
+      overflow: hidden;
+      padding: 50px 42px 62px;
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    .view-card::after {
+      content: "A";
+      position: absolute;
+      right: 62px;
+      top: -18px;
+      width: 280px;
+      height: 280px;
+      display: grid;
+      place-items: center;
+      border: 18px solid rgba(50, 116, 223, 0.05);
+      border-radius: 50%;
+      color: rgba(50, 116, 223, 0.05);
+      font-size: 170px;
+      font-weight: 900;
+      pointer-events: none;
+    }
+
+    .view-section {
+      position: relative;
+      z-index: 1;
+      margin-bottom: 48px;
+    }
+
+    .ribbon {
+      display: inline-flex;
+      align-items: center;
+      height: 56px;
+      margin-bottom: 28px;
+      padding: 0 28px;
+      border-radius: 5px;
+      color: #fff;
+      background: linear-gradient(180deg, #68b4ff 0%, #2369fb 55%, #1f45dc 100%);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 8px 16px rgba(35, 86, 212, 0.2);
+      transform: skewX(-5deg);
+    }
+
+    .ribbon span {
+      display: block;
+      transform: skewX(5deg);
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: 4px;
+      text-shadow: 0 2px 0 rgba(0, 42, 162, 0.24);
+    }
+
+    .view-list {
+      display: grid;
+      gap: 28px;
+      max-width: 1040px;
+    }
+
+    .view-row {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: 28px;
+      align-items: start;
+      color: #40464f;
+      font-size: 22px;
+      line-height: 1.65;
+    }
+
+    .view-label {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: #123c70;
+      font-size: 24px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .view-value {
+      min-height: 36px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .empty-value {
+      color: #a4aab4;
+    }
+
+    .view-footer {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      justify-content: flex-end;
+      padding: 14px 10px;
+      border-top: 1px solid #e5e5e5;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(12px);
+    }
+
+    .view-footer .plain-btn {
+      height: 42px;
+      min-width: 90px;
+      font-size: 18px;
+    }
+
+    @keyframes drop {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 900px) {
+      body {
+        min-width: 0;
+      }
+
+      .prototype {
+        width: 100vw;
+        min-height: 100vh;
+        margin: 0;
+        border: 0;
+        border-radius: 0;
+      }
+
+      .titlebar {
+        height: auto;
+        min-height: 56px;
+        flex-wrap: wrap;
+        padding: 10px 14px;
+      }
+
+      .ai-tip {
+        order: 3;
+        flex-basis: 100%;
+      }
+
+      .form-scroll {
+        height: calc(100vh - 150px);
+        padding: 16px 14px 26px;
+      }
+
+      .basic-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .view-header {
+        height: 72px;
+        padding: 0 16px;
+        gap: 16px;
+      }
+
+      .view-header h1 {
+        font-size: 22px;
+      }
+
+      .view-card {
+        padding: 30px 18px 80px;
+      }
+
+      .ribbon {
+        height: 46px;
+        padding: 0 22px;
+      }
+
+      .ribbon span {
+        font-size: 22px;
+      }
+
+      .view-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        font-size: 17px;
+      }
+
+      .view-label {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <section class="mock-app" id="homePage">
+    <aside class="mock-side">
+      <div class="mock-logo">VISION ACADEMY<br><small>唯寻国际教育</small></div>
+      <nav class="mock-menu">
+        <div class="active">课堂</div><div>班级</div><div>学员</div><div>作业 13</div><div>模考 29</div>
+        <div>反馈</div><button class="sub" type="button" id="toListFromMenu">授课反馈</button><div class="sub">营地反馈</div>
+        <div>师训</div><div>学伴卡</div><div>试听课</div><div>学生前测</div><div>论文竞赛</div><div>雅培测评</div>
+      </nav>
+    </aside>
+    <main class="mock-main">
+      <header class="mock-top"><span>↻　教学工作台</span><span>成兴玲　退出</span></header>
+      <div class="mock-content">
+        <h2>课堂</h2>
+        <section class="mock-card">
+          <h3>待办</h3>
+          <div class="todo-row">
+            <button class="todo-card" type="button" id="toListFromCard"><strong>授课反馈</strong><span>待提交反馈数</span><b>262</b></button>
+            <div class="todo-card"><strong>作业</strong><span>待批改作业份数</span><b>13</b></div>
+            <div class="todo-card"><strong>模考</strong><span>待布置、待批改的模考数</span><b>9</b></div>
+            <div class="todo-card"><strong>模考报告</strong><span>待提交、待沟通的报告数</span><b>20</b></div>
+            <div class="todo-card"><strong>课程规划</strong><span>待提交课程规划数</span><b>1</b></div>
+            <div class="todo-card"><strong>待采分学员</strong><span>需要采分的学员</span><b>0</b></div>
+          </div>
+        </section>
+        <h2>课表</h2>
+        <div class="calendar-ghost"></div>
+      </div>
+    </main>
+  </section>
+
+  <section class="mock-app hidden" id="listPage">
+    <aside class="mock-side">
+      <div class="mock-logo">VISION ACADEMY<br><small>唯寻国际教育</small></div>
+      <nav class="mock-menu">
+        <div class="active">课堂</div><div>班级</div><div>学员</div><div>作业 13</div><div>模考 29</div>
+        <div>反馈</div><div class="sub">授课反馈</div><div class="sub">营地反馈</div>
+        <div>师训</div><div>学伴卡</div><div>试听课</div><div>学生前测</div><div>论文竞赛</div><div>雅培测评</div>
+      </nav>
+    </aside>
+    <main class="mock-main">
+      <header class="mock-top"><span>↻　教学工作台</span><span>成兴玲　退出</span></header>
+      <div class="mock-content">
+        <div class="mock-back">‹ 返回　<strong style="color:#202733">授课反馈</strong></div>
+        <section class="mock-card">
+          <div class="tabs"><span>待提交反馈</span><span>已提交反馈</span><span>已删除反馈</span></div>
+          <div class="filters"><span>班级名称</span><div class="fake-input"></div><span>课程名称</span><div class="fake-input"></div><span>上课日期</span><div class="fake-input"></div><button class="blue-btn" type="button">查询</button></div>
+          <table class="mock-table">
+            <thead><tr><th>上课日期</th><th>上课时间</th><th>课程名称</th><th>班级名称</th><th>学生姓名</th><th>班课班主任</th><th>专属班主任</th><th>等待时间</th><th>操作</th></tr></thead>
+            <tbody>
+              <tr><td>2026-05-21</td><td>10:15 ~ 10:30</td><td>英国大学课程-课前沟通-线上</td><td>采分测试6-英研课程...</td><td>采分测试6</td><td>成兴玲</td><td>成兴玲</td><td>3.27h</td><td><button class="add-link" id="toForm" type="button">添加</button>　删除</td></tr>
+              <tr><td>2026-05-02</td><td>13:30 ~ 15:30</td><td>雅思-听力-线上</td><td>采分测试6-英联邦语培...</td><td>采分测试6</td><td>成兴玲</td><td>成兴玲</td><td>454.27h</td><td><button class="add-link" type="button">添加</button>　删除</td></tr>
+              <tr><td>2026-05-01</td><td>13:30 ~ 15:30</td><td>雅思-听力-线上</td><td>采分测试6-英联邦语培...</td><td>采分测试6</td><td>成兴玲</td><td>成兴玲</td><td>478.27h</td><td>添加　删除</td></tr>
+              <tr><td>2026-04-30</td><td>13:30 ~ 15:30</td><td>雅思-阅读-线上</td><td>采分测试6-英联邦语培...</td><td>采分测试6</td><td>成兴玲</td><td>成兴玲</td><td>502.27h</td><td>添加　删除</td></tr>
+            </tbody>
+          </table>
+        </section>
+      </div>
+    </main>
+  </section>
+
+  <main class="prototype hidden" id="formPage">
+    <header class="titlebar">
+      <div class="title-left">
+        <h1 class="page-title">添加反馈</h1>
+      </div>
+      <div class="ai-tip" aria-label="AI 反馈助手提示">
+        <span class="spark">✦</span>
+        <span>Hi，<em>AI反馈助手</em> 会根据课堂记录和本节课内容，为你写反馈</span>
+      </div>
+      <button class="try-btn" type="button">✦ 试一试</button>
+    </header>
+
+    <section class="form-scroll" aria-label="课程反馈表单">
+      <section class="section" aria-labelledby="basic-title">
+        <h2 class="section-title" id="basic-title">基本信息</h2>
+        <div class="basic-grid">
+          <div class="info-line">
+            <label>学生姓名：</label>
+            <strong>采分测试6</strong>
+          </div>
+          <div class="info-line">
+            <label>课程名称：</label>
+            <strong>雅思-听力-线上</strong>
+          </div>
+          <div class="info-line">
+            <label>授课老师：</label>
+            <strong>成兴玲</strong>
+          </div>
+          <div class="info-line">
+            <label>上课时间：</label>
+            <strong>2026-05-02 13:30 - 15:30</strong>
+          </div>
+          <div class="course-index">
+            <label for="courseIndex">第几次课：</label>
+            <input id="courseIndex" type="number" min="1" max="120" value="8" aria-label="第几次课">
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="feedback-title">
+        <h2 class="section-title" id="feedback-title">反馈内容</h2>
+
+        <div class="field required-field" data-required="true">
+          <div class="field-head">
+            <div class="field-title"><span class="required">*</span>本次课程内容</div>
+          </div>
+          <textarea maxlength="2000" placeholder="请输入本次课程内容，例如：1、本节课学习章节或主题&#10;2、重点知识点与课堂练习内容"></textarea>
+          <div class="field-meta">
+            <span class="error-text">本次课程内容不能为空</span>
+            <span class="count">0/2000</span>
+          </div>
+        </div>
+
+        <div class="field required-field" data-required="true">
+          <div class="field-head">
+            <div class="field-title"><span class="required">*</span>学生课堂表现</div>
+          </div>
+          <textarea maxlength="2000" placeholder="请输入学生课堂表现，例如：听课状态、互动情况、知识吸收、练习完成质量等"></textarea>
+          <div class="field-meta">
+            <span class="error-text">学生课堂表现不能为空</span>
+            <span class="count">0/2000</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-head">
+            <div class="field-title">课后学习建议 <span class="optional">选填</span></div>
+          </div>
+          <textarea maxlength="2000" placeholder="请输入课后学习建议，例如：复习方向、练习方法、下节课前准备事项"></textarea>
+          <div class="field-meta">
+            <span></span>
+            <span class="count">0/2000</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-head">
+            <div class="field-title">作业完成情况 <span class="optional">选填</span></div>
+          </div>
+          <textarea maxlength="1000" placeholder="请输入作业完成情况，例如：是否按时提交、正确率、订正情况、主要问题"></textarea>
+          <div class="field-meta">
+            <span></span>
+            <span class="count">0/1000</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-head">
+            <div class="field-title">重要提醒 <span class="optional">选填</span></div>
+          </div>
+          <textarea maxlength="1000" placeholder="请输入重要提醒，例如：考试节点、资料携带、请假补课、家长需关注事项"></textarea>
+          <div class="field-meta">
+            <span></span>
+            <span class="count">0/1000</span>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <footer class="footer">
+      <div class="footer-actions">
+        <button class="plain-btn" type="button">取消</button>
+        <button class="primary-btn" type="button" id="submitBtn">提交</button>
+      </div>
+    </footer>
+  </main>
+
+  <section class="view-page hidden" id="viewPage" aria-label="授课反馈查看页">
+    <header class="view-header">
+      <button class="view-close" type="button" data-back-to-form aria-label="关闭">×</button>
+      <h1>授课反馈</h1>
+    </header>
+
+    <main class="view-scroll">
+      <article class="view-card">
+        <section class="view-section" aria-labelledby="view-basic-title">
+          <h2 class="ribbon" id="view-basic-title"><span>基础信息</span></h2>
+          <div class="view-list">
+            <div class="view-row">
+              <div class="view-label">老师姓名</div>
+              <div class="view-value" data-view="teacher">成兴玲</div>
+            </div>
+            <div class="view-row">
+              <div class="view-label">学生姓名</div>
+              <div class="view-value" data-view="student">采分测试6</div>
+            </div>
+            <div class="view-row">
+              <div class="view-label">课程名称</div>
+              <div class="view-value" data-view="course">雅思-听力-线上</div>
+            </div>
+            <div class="view-row">
+              <div class="view-label">上课时间</div>
+              <div class="view-value" data-view="time">2026-05-02 13:30 - 15:30</div>
+            </div>
+            <div class="view-row">
+              <div class="view-label">第几次课</div>
+              <div class="view-value" data-view="courseIndex">8</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view-section" aria-labelledby="view-feedback-title">
+          <h2 class="ribbon" id="view-feedback-title"><span>整体点评</span></h2>
+          <div class="view-list">
+            <div class="view-row">
+              <div class="view-label">本次课程内容</div>
+              <div class="view-value" data-view="content"></div>
+            </div>
+            <div class="view-row">
+              <div class="view-label">学生课堂表现</div>
+              <div class="view-value" data-view="performance"></div>
+            </div>
+            <div class="view-row">
+              <div class="view-label">课后学习建议</div>
+              <div class="view-value" data-view="suggestion"></div>
+            </div>
+            <div class="view-row">
+              <div class="view-label">作业完成情况</div>
+              <div class="view-value" data-view="homework"></div>
+            </div>
+            <div class="view-row">
+              <div class="view-label">重要提醒</div>
+              <div class="view-value" data-view="reminder"></div>
+            </div>
+          </div>
+        </section>
+      </article>
+    </main>
+
+    <footer class="view-footer">
+      <button class="plain-btn" type="button" data-back-to-form>关闭</button>
+    </footer>
+  </section>
+
+  <div class="toast" id="toast">校验通过，反馈已准备提交</div>
+
+  <script>
+    const fields = Array.from(document.querySelectorAll(".field"));
+    const textareas = Array.from(document.querySelectorAll(".field textarea"));
+    const homePage = document.querySelector("#homePage");
+    const listPage = document.querySelector("#listPage");
+    const formPage = document.querySelector("#formPage");
+    const viewPage = document.querySelector("#viewPage");
+    const submitBtn = document.querySelector("#submitBtn");
+    const tryBtn = document.querySelector(".try-btn");
+    const toast = document.querySelector("#toast");
+    const courseIndex = document.querySelector("#courseIndex");
+
+    const examples = [
+      "本节课围绕雅思听力 Section 2 场景题展开，重点讲解定位词识别、同义替换和地图题方向判断。课堂完成 2 组精听练习，并针对错题复盘了干扰项特征。",
+      "学生整体听课状态稳定，能够跟随老师完成题干预判和关键词标记。地图题方向转换仍需要放慢速度，个别同义替换反应稍慢，但订正后能说清错误原因。",
+      "课后建议复听课堂音频 2 遍，整理今天出现的同义替换表达，并完成地图题专项练习。下节课前重点复习方位词和地点描述词。",
+      "上次作业已按时提交，整体正确率约 82%。主要失分集中在拼写细节和复数形式，已在课堂完成订正。",
+      "下次课会进行 Section 3 多人讨论题训练，请提前准备错题本，并带好上节课讲义。"
+    ];
+
+    const viewData = {
+      teacher: "成兴玲",
+      student: "采分测试6",
+      course: "雅思-听力-线上",
+      time: "2026-05-02 13:30 - 15:30"
+    };
+
+    function updateCounter(field) {
+      const textarea = field.querySelector("textarea");
+      const count = field.querySelector(".count");
+      count.textContent = `${textarea.value.length}/${textarea.maxLength}`;
+    }
+
+    function validateField(field) {
+      const textarea = field.querySelector("textarea");
+      const isRequired = field.dataset.required === "true";
+      const invalid = isRequired && textarea.value.trim().length === 0;
+      field.classList.toggle("error", invalid);
+      return !invalid;
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    function showPage(page) {
+      [homePage, listPage, formPage, viewPage].forEach((item) => item.classList.add("hidden"));
+      page.classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "auto" });
+    }
+
+    function setViewValue(key, value) {
+      const target = document.querySelector(`[data-view="${key}"]`);
+      const normalized = String(value || "").trim();
+      target.textContent = normalized || "暂无";
+      target.classList.toggle("empty-value", !normalized);
+    }
+
+    function renderViewPage() {
+      setViewValue("teacher", viewData.teacher);
+      setViewValue("student", viewData.student);
+      setViewValue("course", viewData.course);
+      setViewValue("time", viewData.time);
+      setViewValue("courseIndex", courseIndex.value);
+      setViewValue("content", textareas[0].value);
+      setViewValue("performance", textareas[1].value);
+      setViewValue("suggestion", textareas[2].value);
+      setViewValue("homework", textareas[3].value);
+      setViewValue("reminder", textareas[4].value);
+      showPage(viewPage);
+    }
+
+    fields.forEach((field) => {
+      const textarea = field.querySelector("textarea");
+      textarea.addEventListener("input", () => {
+        updateCounter(field);
+        if (field.classList.contains("error")) {
+          validateField(field);
+        }
+      });
+      updateCounter(field);
+    });
+
+    submitBtn.addEventListener("click", () => {
+      const valid = fields.map(validateField).every(Boolean);
+      if (!valid) {
+        const firstError = document.querySelector(".field.error textarea");
+        firstError.focus();
+        showToast("请先填写必填字段");
+        return;
+      }
+      showToast("校验通过，已生成查看页");
+      renderViewPage();
+    });
+
+    tryBtn.addEventListener("click", () => {
+      fields.forEach((field, index) => {
+        const textarea = field.querySelector("textarea");
+        textarea.value = examples[index] || "";
+        updateCounter(field);
+        validateField(field);
+      });
+      showToast("AI 示例内容已填入，可继续编辑");
+    });
+
+    document.querySelectorAll("[data-back-to-form]").forEach((button) => {
+      button.addEventListener("click", () => {
+        showPage(formPage);
+      });
+    });
+
+    document.querySelector("#toListFromMenu").addEventListener("click", () => showPage(listPage));
+    document.querySelector("#toListFromCard").addEventListener("click", () => showPage(listPage));
+    document.querySelector("#toForm").addEventListener("click", () => showPage(formPage));
+  </script>
+</body>
+</html>
