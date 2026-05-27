@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="工业机械臂数字孪生控制台 demo，可交互体验机器人抓取、输送、回放与实时监控。"
+    />
+    <title>RobotCell Twin Demo</title>
+    <script>
+      document.documentElement.classList.add(location.protocol === "file:" ? "is-file" : "is-served");
+    </script>
+    <style>
+      html.is-file,
+      html.is-file body {
+        min-height: 100%;
+        margin: 0;
+        background: #d4d7dc;
+        color: #161922;
+        font-family: "Avenir Next Condensed", "DIN Alternate", sans-serif;
+      }
+
+      .file-launcher {
+        display: none;
+      }
+
+      html.is-file #app {
+        display: none;
+      }
+
+      html.is-file .file-launcher {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background:
+          linear-gradient(90deg, rgba(22, 25, 34, 0.07) 1px, transparent 1px) 0 0 / 34px 34px,
+          linear-gradient(rgba(22, 25, 34, 0.06) 1px, transparent 1px) 0 0 / 34px 34px,
+          #d4d7dc;
+      }
+
+      .file-launcher__panel {
+        width: min(720px, 100%);
+        border: 3px solid #242834;
+        background: rgba(235, 236, 239, 0.94);
+        padding: 28px;
+        box-shadow: 0 18px 40px rgba(22, 25, 34, 0.16);
+      }
+
+      .file-launcher h1 {
+        margin: 0 0 12px;
+        font-size: clamp(34px, 6vw, 64px);
+        line-height: 0.9;
+      }
+
+      .file-launcher p {
+        margin: 0 0 20px;
+        color: #3d424c;
+        font-size: 20px;
+        line-height: 1.45;
+      }
+
+      .file-launcher a {
+        min-height: 48px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 18px;
+        background: #f48538;
+        color: #161922;
+        border: 2px solid rgba(111, 67, 37, 0.35);
+        text-decoration: none;
+        font-size: 22px;
+        font-weight: 900;
+      }
+    </style>
+    <script type="module" crossorigin src="/assets/index-D412RVkO.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-Bhrorn5T.css">
+  </head>
+  <body>
+    <div class="file-launcher">
+      <div class="file-launcher__panel">
+        <h1>RobotCell Twin Demo</h1>
+        <p>
+          这个项目需要通过本地开发服务或线上静态站点访问。直接用 file:// 打开时，Three.js、图标和样式模块不会被浏览器正确解析。
+        </p>
+        <a href="http://127.0.0.1:5173/">打开本地 Demo</a>
+      </div>
+    </div>
+    <div id="app">
+      <header class="topbar" aria-label="系统状态栏">
+        <div class="brand-lockup">
+          <div class="avatar-ring" aria-hidden="true">
+            <i data-lucide="bot"></i>
+          </div>
+          <div>
+            <span class="eyebrow">ROBOTCELL TWIN</span>
+            <strong>GREEN CONNECTED</strong>
+          </div>
+        </div>
+        <div class="signal-strip" aria-hidden="true">
+          <i data-lucide="move"></i>
+          <i data-lucide="volume-2"></i>
+          <i data-lucide="bluetooth"></i>
+          <i data-lucide="wifi"></i>
+          <i data-lucide="chart-no-axes-column-increasing"></i>
+        </div>
+        <div class="system-readout">
+          <span>SIMULATION <b id="simStateLabel">RUNNING</b></span>
+          <span>STATUS: <b>OPTIMAL</b></span>
+          <span>SYSTEM LOAD: <b id="loadLabel">39%</b></span>
+        </div>
+        <div class="clock-block">
+          <span>TIME</span>
+          <strong id="clockLabel">20:20:49</strong>
+          <span id="dateLabel">2026.02.27</span>
+        </div>
+        <div class="top-actions">
+          <button class="console-button" id="settingsButton" type="button" aria-label="打开设置">
+            <span>SETTINGS</span>
+            <i data-lucide="settings"></i>
+          </button>
+          <button class="console-button" id="resetButton" type="button" aria-label="重置仿真">
+            <span>RESET</span>
+            <i data-lucide="rotate-ccw"></i>
+          </button>
+        </div>
+      </header>
+
+      <main class="console-shell">
+        <aside class="rail rail-left" aria-label="机器人关节控制">
+          <section class="panel joint-panel">
+            <div class="panel-title">JOINT ANGLES</div>
+            <div class="dial-grid">
+              <div class="dial-card primary">
+                <div class="dial" data-joint="0">
+                  <span id="joint1Dial">80</span>
+                  <b></b>
+                </div>
+                <div>
+                  <strong>Joint 1</strong>
+                  <small>BASE YAW</small>
+                </div>
+              </div>
+              <div class="joint-silhouette" aria-hidden="true">
+                <i data-lucide="armchair"></i>
+                <span></span>
+              </div>
+              <div class="dial-card">
+                <div class="dial" data-joint="1">
+                  <span id="joint2Dial">54</span>
+                  <b></b>
+                </div>
+                <div>
+                  <strong>Joint 2</strong>
+                  <small>SHOULDER</small>
+                </div>
+              </div>
+              <div class="dial-card">
+                <div class="dial" data-joint="2">
+                  <span id="joint3Dial">53</span>
+                  <b></b>
+                </div>
+                <div>
+                  <strong>Joint 3</strong>
+                  <small>ELBOW</small>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-title">FORCE READOUT</div>
+            <canvas id="forceChart" class="mini-chart" width="460" height="150"></canvas>
+          </section>
+
+          <section class="panel control-panel">
+            <div class="panel-title">MANUAL CONTROL</div>
+            <label>
+              <span>Joint 1</span>
+              <input id="joint1Control" type="range" min="-120" max="120" value="80" />
+              <b id="joint1Value">80°</b>
+            </label>
+            <label>
+              <span>Joint 2</span>
+              <input id="joint2Control" type="range" min="-50" max="120" value="54" />
+              <b id="joint2Value">54°</b>
+            </label>
+            <label>
+              <span>Joint 3</span>
+              <input id="joint3Control" type="range" min="-90" max="120" value="53" />
+              <b id="joint3Value">53°</b>
+            </label>
+            <div class="mode-switch" role="group" aria-label="控制模式">
+              <button id="autoModeButton" type="button" class="active">AUTO CYCLE</button>
+              <button id="manualModeButton" type="button">MANUAL</button>
+            </div>
+          </section>
+        </aside>
+
+        <section class="sim-panel" aria-label="3D 仿真区域">
+          <div class="panel-title">3D SIMULATOR AREA</div>
+          <div id="simViewport" class="sim-viewport">
+            <div class="reticle top-left"></div>
+            <div class="reticle top-right"></div>
+            <div class="reticle bottom-left"></div>
+            <div class="reticle bottom-right"></div>
+            <div class="floating-hud">
+              <span id="taskStateLabel">APPROACH PAYLOAD</span>
+              <b id="payloadStateLabel">Payload: tracking</b>
+            </div>
+          </div>
+        </section>
+
+        <aside class="rail rail-right" aria-label="仿真指标与回放控制">
+          <section class="panel metrics-panel">
+            <div class="panel-title">VELOCITY METRICS</div>
+            <div class="speed-card">
+              <span>SPEED</span>
+              <strong id="speedLabel">0.85</strong>
+              <b>m/s</b>
+              <small>MAX: 1.20 m/s<br />AVG: 0.84 m/s</small>
+            </div>
+            <canvas id="velocityChart" class="mini-chart" width="460" height="170"></canvas>
+          </section>
+
+          <section class="panel playback-panel">
+            <div class="panel-title">TIME CONTROL</div>
+            <strong id="elapsedLabel">02:15.450</strong>
+            <span>PLAYBACK</span>
+            <div class="transport">
+              <button id="playButton" class="active" type="button" aria-label="播放">
+                <i data-lucide="play"></i>
+              </button>
+              <button id="pauseButton" type="button" aria-label="暂停">
+                <i data-lucide="pause"></i>
+              </button>
+              <button id="fastButton" type="button" aria-label="快进">
+                <i data-lucide="fast-forward"></i>
+              </button>
+              <button id="stopButton" type="button" aria-label="停止">
+                <i data-lucide="square"></i>
+              </button>
+            </div>
+            <label class="speed-range">
+              <span>DIM SPEED: <b id="dimSpeedLabel">14</b></span>
+              <input id="speedControl" type="range" min="4" max="24" value="14" />
+            </label>
+          </section>
+
+          <section class="panel terminal-panel">
+            <div class="panel-title">COMMAND TERMINAL</div>
+            <ol id="terminalLog" aria-label="系统命令日志"></ol>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+  </body>
+</html>
